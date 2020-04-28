@@ -4,11 +4,6 @@
 
 #include "SDL.h"
 
-void change_color(int data[], int size) {
-	for (int i = 0; i < size; i++) {
-		data[i] = rand() % 256;
-	}
-}
 
 int main(int argc, char** argv) {
 
@@ -20,7 +15,11 @@ int main(int argc, char** argv) {
 	SDL_Event event;
 	bool quit = false;
 
-	int color[3] = {0, 0, 0};
+	int color[7][3] = { {148, 0, 211}, {75, 0, 130}, {0, 0, 255}, {0, 255, 0}, {255, 255, 0}, {255, 127, 0}, {255, 0, 0} };
+
+	int counter = 0;
+
+	int frame_rate = 24;
 
 	while (!quit) {
 		SDL_PollEvent(&event);
@@ -29,13 +28,17 @@ int main(int argc, char** argv) {
 			break;
 		}
 
-		SDL_SetRenderDrawColor(renderer, color[0], color[1], color[2], 255);
+		SDL_SetRenderDrawColor(renderer, color[counter][0], color[counter][1], color[counter][2], 255);
 
 		SDL_RenderClear(renderer);
 
 		SDL_RenderPresent(renderer);
 
-		change_color(color, 3);
+		
+		counter = (counter + 1) % 7;
+
+		SDL_Delay(1000/frame_rate);
+		
 	}
 
 	SDL_DestroyRenderer(renderer);
