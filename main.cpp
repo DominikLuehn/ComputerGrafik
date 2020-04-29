@@ -1,47 +1,84 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <iostream>
 
 #include "SDL.h"
+#include "glew.h"
 
 
 int main(int argc, char** argv) {
 
 	srand(time(NULL));
-	SDL_Init(SDL_INIT_EVERYTHING);
 
-	SDL_Window* window = SDL_CreateWindow("Hello World", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN);
-	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 0);
+	SDL_Init(SDL_INIT_EVERYTHING);
+	SDL_Window* window = SDL_CreateWindow("Hello World", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
+	
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4.1);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4.6);
+	SDL_GLContext glcontext = SDL_GL_CreateContext(window);
+
+	GLboolean glewExperimental = GL_TRUE;
+	GLenum glewInit();
+
 	SDL_Event event;
 	bool quit = false;
 
-	int color[7][3] = { {148, 0, 211}, {75, 0, 130}, {0, 0, 255}, {0, 255, 0}, {255, 255, 0}, {255, 127, 0}, {255, 0, 0} };
-
-	int counter = 0;
-
-	int frame_rate = 24;
+	int colors[3] = {0, 0, 0};
 
 	while (!quit) {
-		SDL_PollEvent(&event);
-		if (event.type == SDL_QUIT) {
-			quit = true;
-			break;
+		// Events
+		while (SDL_PollEvent(&event) != 0) {
+			if (event.type == SDL_QUIT) {
+				quit = true;
+				break;
+			}
+			else{
+				switch (event.key.keysym.sym) {
+					case SDLK_q:
+						quit = true;
+						break;
+					case SDLK_r:
+						colors[0] = 1;
+						colors[1] = 0;
+						colors[2] = 0;
+						break;
+					case SDLK_g:
+						colors[0] = 0;
+						colors[1] = 1;
+						colors[2] = 0;
+						break;
+					case SDLK_b:
+						colors[0] = 0;
+						colors[1] = 0;
+						colors[2] = 1;
+						break;
+					case SDLK_w:
+						colors[0] = 1;
+						colors[1] = 1;
+						colors[2] = 1;
+						break;
+					case SDLK_l:
+						colors[0] = 0;
+						colors[1] = 0;
+						colors[2] = 0;
+						break;
+				}
+			}
 		}
 
-		SDL_SetRenderDrawColor(renderer, color[counter][0], color[counter][1], color[counter][2], 255);
+		// leere Fenster
+		glClearColor(colors[0], colors[1], colors[2], 1);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_DEPTH_BUFFER_BIT);
 
-		SDL_RenderClear(renderer);
+		// Rendering
 
-		SDL_RenderPresent(renderer);
-
-		
-		counter = (counter + 1) % 7;
-
-		SDL_Delay(1000/frame_rate);
-		
+		// tausche Puffer
+		SDL_GL_SwapWindow(window);
 	}
 
-	SDL_DestroyRenderer(renderer);
+	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
