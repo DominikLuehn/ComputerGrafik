@@ -8,6 +8,14 @@
 
 SDL_Window* window;
 
+int background_color[3] = { 0, 0, 0 };
+
+float object_color[]{
+		0.0f, 1.0f, 0.0f
+};
+
+SDL_Event event;
+
 void createShader(GLenum type, GLuint* id, const std::string code) {
 
 	GLint status = false;
@@ -35,6 +43,60 @@ void createShaderProgram(GLuint* shader_id, GLuint* program_id) {
 	glUseProgram(*program_id);
 }
 
+void changeColorUniform(GLint program) {
+	GLuint location;
+
+	location = glGetUniformLocation(program, "geometry_color");
+
+	if (location != -1) {
+		glUniform3fv(location, 1, object_color);
+	}
+	else {
+		std::cout << "Uniform Location konnte nicht gefunden werden!." << std::endl;
+	}
+}
+
+void eventHandler(bool* quit) {
+	while (SDL_PollEvent(&event) != 0) {
+		if (event.type == SDL_QUIT) {
+			*quit = true;
+			break;
+		}
+		else {
+			switch (event.key.keysym.sym) {
+			case SDLK_q:
+				*quit = true;
+				break;
+			case SDLK_r:
+				object_color[0] = 1.0f;
+				object_color[1] = 0.0f;
+				object_color[2] = 0.0f;
+				break;
+			case SDLK_g:
+				object_color[0] = 0.0f;
+				object_color[1] = 1.0f;
+				object_color[2] = 0.0f;
+				break;
+			case SDLK_b:
+				object_color[0] = 0.0f;
+				object_color[1] = 0.0f;
+				object_color[2] = 1.0f;
+				break;
+			case SDLK_w:
+				object_color[0] = 1.0f;
+				object_color[1] = 1.0f;
+				object_color[2] = 1.0f;
+				break;
+			case SDLK_l:
+				object_color[0] = 0.0f;
+				object_color[1] = 0.0f;
+				object_color[2] = 0.0f;
+				break;
+			}
+		}
+	}
+}
+
 int main(int argc, char** argv) {
 
 	srand(time(NULL));
@@ -52,29 +114,6 @@ int main(int argc, char** argv) {
 		std::cout << "F" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
-	SDL_Event event;
-	bool quit = false;
-
-	int colors[3] = {0, 0, 0};
-
-	/* Geometrie
-		C++ Geometry-Klasse			
-		OpenGL Vertex Array Object	
-
-		Platz:	
-		std::vector
-		Vertex Buffer Object
-
-		Dreiecke erzeugen:	
-		AddTriangle-Methode in Geometry-Klasse
-		glBufferData(.),glVertexAttribPointer(.)
-
-		Renderen:
-		Render-Methode in Geometry-Klasse
-		glBindvertexArray(.),glDrawArrays(.)
-	
-	*/
 
 	float vertices[]{
 		-0.5f, -0.5f,  0.0f,
@@ -107,7 +146,7 @@ int main(int argc, char** argv) {
 	createShader(GL_VERTEX_SHADER, &v_shader, v_sh_code);
 
 	// Fragment-Shader
-	const std::string f_sh_code ="#version 330 core \n layout(location = 0) out vec3 color; void main(){ color = vec3(0.443, 0.694, 0.153);}";
+	const std::string f_sh_code ="#version 330 core \n layout(location = 0) out vec3 object_color; uniform vec3 geometry_color; void main(){ object_color = geometry_color;}";
 	createShader(GL_FRAGMENT_SHADER, &f_shader, f_sh_code);
 	
 	// Shader-Programme erzeugen
@@ -116,49 +155,17 @@ int main(int argc, char** argv) {
 	createShaderProgram(&v_shader, &v_sh_pro);
 	createShaderProgram(&f_shader, &f_sh_pro);
 
+	// Render Loop
+	bool quit = false;
+	
 	while (!quit) {
 		// Events
-		while (SDL_PollEvent(&event) != 0) {
-			if (event.type == SDL_QUIT) {
-				quit = true;
-				break;
-			}
-			else{
-				switch (event.key.keysym.sym) {
-					case SDLK_q:
-						quit = true;
-						break;
-					/*case SDLK_r:
-						colors[0] = 1;
-						colors[1] = 0;
-						colors[2] = 0;
-						break;
-					case SDLK_g:
-						colors[0] = 0;
-						colors[1] = 1;
-						colors[2] = 0;
-						break;
-					case SDLK_b:
-						colors[0] = 0;
-						colors[1] = 0;
-						colors[2] = 1;
-						break;
-					case SDLK_w:
-						colors[0] = 1;
-						colors[1] = 1;
-						colors[2] = 1;
-						break;
-					case SDLK_l:
-						colors[0] = 0;
-						colors[1] = 0;
-						colors[2] = 0;
-						break;*/
-				}
-			}
-		}
+		changeColorUniform(f_sh_pro);
+		eventHandler(&quit);
 
+		
 		// leere Fenster
-		glClearColor(colors[0], colors[1], colors[2], 1);
+		glClearColor(background_color[0], background_color[1], background_color[2], 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
