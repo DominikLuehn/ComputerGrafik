@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <iostream>
+#include <vector>
 
 #include "SDL.h"
 #include "glew.h"
@@ -39,8 +39,6 @@ void createShaderProgram(GLuint* shader_id, GLuint* program_id) {
 	glAttachShader(*program_id, *shader_id);
 
 	glLinkProgram(*program_id);
-
-	glUseProgram(*program_id);
 }
 
 void changeColorUniform(GLint program) {
@@ -99,8 +97,6 @@ void eventHandler(bool* quit) {
 
 int main(int argc, char** argv) {
 
-	srand(time(NULL));
-
 	SDL_Init(SDL_INIT_EVERYTHING);
 	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4.1);
@@ -116,26 +112,42 @@ int main(int argc, char** argv) {
 	}
 
 	float vertices[]{
-		-0.5f, -0.5f,  0.0f,
-		 0.0f,  0.5f,  0.0f,
-		 0.5f, -0.5f,  0.0f
+		// erstes Dreieck
+		 0.0f,  0.0f,  0.0f,
+		 0.0f,  1.0f,  0.0f,
+		 1.0f,  1.0f,  0.0f,
+
+		// zweites Dreieck
+		 0.0f,  0.0f,  0.0f,
+		-1.0f,  0.0f,  0.0f,
+		-1.0f,  1.0f,  0.0f,
+
+		// drittes Dreieck
+		 0.0f,  0.0f,  0.0f,
+		 0.0f, -1.0f,  0.0f,
+		-1.0f, -1.0f,  0.0f,
+
+		 // viertes Dreieck
+		 0.0f,  0.0f,  0.0f,
+		 1.0f,  0.0f,  0.0f,
+		 1.0f, -1.0f,  0.0f
 	};
 
+	// VAO, VBOerstellen
 	GLuint VBO, VAO;
 	
-	// VAO, VBO erstellen
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
-	// VAO, VBO binden/aktivieren
+	// VAO, VBO, IBO binden/aktivieren
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	// VBO füllen
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Vertex Daten einem Array-Indes zuordnen
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	// Vertex Daten einem Array-Index zuordnen
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
 	glEnableVertexAttribArray(0);
 
 	// Shader
@@ -155,6 +167,9 @@ int main(int argc, char** argv) {
 	createShaderProgram(&v_shader, &v_sh_pro);
 	createShaderProgram(&f_shader, &f_sh_pro);
 
+	glDeleteShader(v_shader);
+	glDeleteShader(f_shader);
+
 	// Render Loop
 	bool quit = false;
 	
@@ -162,15 +177,19 @@ int main(int argc, char** argv) {
 		// Events
 		changeColorUniform(f_sh_pro);
 		eventHandler(&quit);
-
 		
 		// leere Fenster
 		glClearColor(background_color[0], background_color[1], background_color[2], 1);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glClear(GL_DEPTH_BUFFER_BIT);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Rendering
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(v_sh_pro);
+		glUseProgram(f_sh_pro);
+
+		//glDrawElements(GL_TRIANGLES, indices.size(), GL_FLOAT, (void*)0);
+		glDrawArrays(GL_TRIANGLES, 0, 3 * 6);
 
 		// tausche Puffer
 		SDL_GL_SwapWindow(window);
