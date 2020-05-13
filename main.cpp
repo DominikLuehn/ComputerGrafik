@@ -7,6 +7,7 @@
 #include "glew.h"
 
 SDL_Window* window;
+SDL_Event event;
 
 int background_color[3] = { 0, 0, 0 };
 
@@ -14,11 +15,8 @@ float object_color[]{
 		0.0f, 1.0f, 0.0f
 };
 
-SDL_Event event;
 
-void createShader(GLenum type, GLuint* id, const std::string code) {
-
-	GLint status = false;
+void createShader(GLenum type, GLuint* id, const std::string code, int* success) {
 
 	const char* code_c_str = code.c_str();
 	
@@ -26,19 +24,23 @@ void createShader(GLenum type, GLuint* id, const std::string code) {
 	
 	glShaderSource(*id, 1, &code_c_str, NULL);
 	glCompileShader(*id);
-	glGetShaderiv(*id, GL_COMPILE_STATUS, &status);
-
-	if (status == GL_FALSE) {
-		std::cout << "Vertex-Shader wurde nicht kompiliert" << std::endl;
-	}
+	glGetShaderiv(*id, GL_COMPILE_STATUS, success);
 }
 
-void createShaderProgram(GLuint* shader_id, GLuint* program_id) {
+void createShaderProgram(GLuint* shader_id, GLuint* shader_id2,GLuint* program_id) {
+	int success;
+
 	*program_id = glCreateProgram();
 
 	glAttachShader(*program_id, *shader_id);
-
+	glAttachShader(*program_id, *shader_id2);
 	glLinkProgram(*program_id);
+
+	glGetProgramiv(*program_id, GL_LINK_STATUS, &success);
+
+	if (!success) {
+		std::cout << "Linking-Fehler!" << std::endl;
+	}
 }
 
 void changeColorUniform(GLint program) {
@@ -112,26 +114,56 @@ int main(int argc, char** argv) {
 	}
 
 	float vertices[]{
+		// Position        |  Farbe
+
 		// erstes Dreieck
-		 0.0f,  0.0f,  0.0f,
-		 0.0f,  1.0f,  0.0f,
-		 1.0f,  1.0f,  0.0f,
+		 0.0f,  0.0f,  0.0f,	1.0f, 0.0f, 0.0f,
+		 0.0f,  1.0f,  0.0f,	0.0f, 1.0f, 0.0f,
+		 1.0f,  1.0f,  0.0f,	0.0f, 0.0f, 1.0f,
 
 		// zweites Dreieck
-		 0.0f,  0.0f,  0.0f,
-		-1.0f,  0.0f,  0.0f,
-		-1.0f,  1.0f,  0.0f,
+		 0.0f,  0.0f,  0.0f,	0.0f, 1.0f, 0.0f,
+		-1.0f,  0.0f,  0.0f,	0.0f, 0.0f, 1.0f,
+		-1.0f,  1.0f,  0.0f,	1.0f, 0.0f, 0.0f,
 
-		// drittes Dreieck
-		 0.0f,  0.0f,  0.0f,
-		 0.0f, -1.0f,  0.0f,
-		-1.0f, -1.0f,  0.0f,
+		// drittes Dreieck 
+		 0.0f,  0.0f,  0.0f,	0.0f, 0.0f, 1.0f,
+		 0.0f, -1.0f,  0.0f,	1.0f, 0.0f, 0.0f,
+		-1.0f, -1.0f,  0.0f,	0.0f, 1.0f, 0.0f,
 
 		 // viertes Dreieck
-		 0.0f,  0.0f,  0.0f,
-		 1.0f,  0.0f,  0.0f,
-		 1.0f, -1.0f,  0.0f
+		 0.0f,  0.0f,  0.0f,	1.0f, 0.0f, 0.0f,
+		 1.0f,  0.0f,  0.0f,	0.0f, 1.0f, 0.0f,
+		 1.0f, -1.0f,  0.0f,	0.0f, 0.0f, 1.0f
 	};
+
+	// Shader
+	GLuint v_shader, f_shader;
+
+	// Vertex-Shader
+	int success;
+	const std::string v_sh_code = "#version 330 core \n layout(location = 0) in vec3 vertex_position; layout(location = 1) in vec3 aColor; out vec3 ourColor; void main(){ ourColor = aColor; gl_Position.xyz = vertex_position; gl_Position.w = 1.0;}";
+	createShader(GL_VERTEX_SHADER, &v_shader, v_sh_code, &success);
+
+	if (!success) {
+		std::cout << "Vertex-Shader wurde nicht kompiliert" << std::endl;
+	}
+
+	// Fragment-Shader
+	const std::string f_sh_code = "#version 330 core \n out vec4 FragColor; in vec3 ourColor; void main(){ FragColor = vec4(ourColor, 1.0);}";
+	createShader(GL_FRAGMENT_SHADER, &f_shader, f_sh_code, &success);
+
+	if (!success) {
+		std::cout << "Fragment-Shader wurde nicht kompiliert" << std::endl;
+	}
+
+	// Shader-Programme erzeugen
+	GLuint shaderProgram;
+
+	createShaderProgram(&v_shader, &f_shader, &shaderProgram);
+
+	glDeleteShader(v_shader);
+	glDeleteShader(f_shader);
 
 	// VAO, VBOerstellen
 	GLuint VBO, VAO;
@@ -146,36 +178,21 @@ int main(int argc, char** argv) {
 	// VBO füllen
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// Vertex Daten einem Array-Index zuordnen
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), nullptr);
+	// Vertex Positionen einem Array-Index zuordnen
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// Shader
-	GLuint v_shader, f_shader;
-
-	// Vertex-Shader
-	const std::string v_sh_code = "# version 330 core \n layout(location = 0) in vec3 vertex_position; void main(){ gl_Position.xyz = vertex_position; gl_Position.w = 1.0;}";
-	createShader(GL_VERTEX_SHADER, &v_shader, v_sh_code);
-
-	// Fragment-Shader
-	const std::string f_sh_code ="#version 330 core \n layout(location = 0) out vec3 object_color; uniform vec3 geometry_color; void main(){ object_color = geometry_color;}";
-	createShader(GL_FRAGMENT_SHADER, &f_shader, f_sh_code);
-	
-	// Shader-Programme erzeugen
-	GLuint v_sh_pro, f_sh_pro;
-	
-	createShaderProgram(&v_shader, &v_sh_pro);
-	createShaderProgram(&f_shader, &f_sh_pro);
-
-	glDeleteShader(v_shader);
-	glDeleteShader(f_shader);
+	// Farbwerte
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 	// Render Loop
 	bool quit = false;
 	
+	glUseProgram(shaderProgram);
+
 	while (!quit) {
 		// Events
-		changeColorUniform(f_sh_pro);
 		eventHandler(&quit);
 		
 		// leere Fenster
@@ -185,15 +202,18 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Rendering
-		glUseProgram(v_sh_pro);
-		glUseProgram(f_sh_pro);
 
 		//glDrawElements(GL_TRIANGLES, indices.size(), GL_FLOAT, (void*)0);
-		glDrawArrays(GL_TRIANGLES, 0, 3 * 6);
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_TRIANGLES, 0, 12);
 
 		// tausche Puffer
 		SDL_GL_SwapWindow(window);
 	}
+
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteProgram(shaderProgram);
 
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);
