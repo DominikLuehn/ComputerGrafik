@@ -114,34 +114,33 @@ int main(int argc, char** argv) {
 	}
 
 	float vertices[]{
-		// Position        |  Farbe
-
+		// Position			|   Farbe
 		// erstes Dreieck
-		 0.0f,  0.0f,  0.0f,	1.0f, 0.0f, 0.0f,
+		 0.0f, -0.5f,  0.0f,	1.0f, 0.0f, 0.0f,
 		 0.0f,  1.0f,  0.0f,	0.0f, 1.0f, 0.0f,
 		 1.0f,  1.0f,  0.0f,	0.0f, 0.0f, 1.0f,
 
 		// zweites Dreieck
-		 0.0f,  0.0f,  0.0f,	0.0f, 1.0f, 0.0f,
-		-1.0f,  0.0f,  0.0f,	0.0f, 0.0f, 1.0f,
-		-1.0f,  1.0f,  0.0f,	1.0f, 0.0f, 0.0f,
+		 0.5f,  0.0f,  0.5f,	0.0f, 0.0f, 1.0f,
+		-1.0f,  0.0f,  0.5f,	0.0f, 0.0f, 1.0f,
+		-1.0f,  1.0f,  0.5f,	0.0f, 0.0f, 1.0f,
 
 		// drittes Dreieck 
-		 0.0f,  0.0f,  0.0f,	0.0f, 0.0f, 1.0f,
-		 0.0f, -1.0f,  0.0f,	1.0f, 0.0f, 0.0f,
-		-1.0f, -1.0f,  0.0f,	0.0f, 1.0f, 0.0f,
+		 0.0f,  0.5f,  0.9f,	0.0f, 1.0f, 0.0f,
+		 0.0f, -1.0f,  0.9f,	0.0f, 1.0f, 0.0f,
+		-1.0f, -1.0f,  0.9f,	0.0f, 1.0f, 0.0f,
 
 		 // viertes Dreieck
-		 0.0f,  0.0f,  0.0f,	1.0f, 0.0f, 0.0f,
-		 1.0f,  0.0f,  0.0f,	0.0f, 1.0f, 0.0f,
-		 1.0f, -1.0f,  0.0f,	0.0f, 0.0f, 1.0f
+		-0.5f,  0.0f, -0.5f,	1.0f, 0.0f, 0.0f,
+		 1.0f,  0.0f, -0.5f,	1.0f, 0.0f, 0.0f,
+		 1.0f, -1.0f, -0.5f,	1.0f, 0.0f, 0.0f
 	};
 
 	// Shader
 	GLuint v_shader, f_shader;
+	int success;
 
 	// Vertex-Shader
-	int success;
 	const std::string v_sh_code = "#version 330 core \n layout(location = 0) in vec3 vertex_position; layout(location = 1) in vec3 aColor; out vec3 ourColor; void main(){ ourColor = aColor; gl_Position.xyz = vertex_position; gl_Position.w = 1.0;}";
 	createShader(GL_VERTEX_SHADER, &v_shader, v_sh_code, &success);
 
