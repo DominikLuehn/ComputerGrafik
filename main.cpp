@@ -26,40 +26,48 @@ void eventHandler(bool* quit) {
 		}
 		else {
 			switch (event.key.keysym.sym) {
-			case SDLK_q:
+			case SDLK_ESCAPE:
 				*quit = true;
 				break;
 			// Rotation
-			case SDLK_LEFT:
-				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-				ourShader.setTransform("transform", transform_matrix);
-				break;
-			case SDLK_RIGHT:
-				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-				ourShader.setTransform("transform", transform_matrix);
-				break;
-			case SDLK_UP:
+			case SDLK_w:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_DOWN:
-				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
-				break;
-			// Translation
-			case SDLK_w:
-				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, 0.1f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
-				break;
 			case SDLK_a:
-				transform_matrix = glm::translate(transform_matrix, glm::vec3(-0.1f, 0.0f, 0.0f));
+				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_s:
-				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, -0.1f, 0.0f));
+				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_d:
+				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
+				ourShader.setTransform("transform", transform_matrix);
+				break;
+			case SDLK_q:
+				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+				ourShader.setTransform("transform", transform_matrix);
+				break;
+			case SDLK_e:
+				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+				ourShader.setTransform("transform", transform_matrix);
+				break;
+			// Translation
+			case SDLK_UP:
+				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, 0.1f, 0.0f));
+				ourShader.setTransform("transform", transform_matrix);
+				break;
+			case SDLK_LEFT:
+				transform_matrix = glm::translate(transform_matrix, glm::vec3(-0.1f, 0.0f, 0.0f));
+				ourShader.setTransform("transform", transform_matrix);
+				break;
+			case SDLK_DOWN:
+				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, -0.1f, 0.0f));
+				ourShader.setTransform("transform", transform_matrix);
+				break;
+			case SDLK_RIGHT:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.1f, 0.1f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
