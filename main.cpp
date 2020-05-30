@@ -14,11 +14,12 @@
 Shader ourShader;
 SDL_Window* window;
 SDL_Event event;
-float background_color[] = { 0.0, 0.0, 0.0 };
-float object_color[]{ 0.0f, 1.0f, 0.0f };
 glm::mat4 transform_matrix;
+glm::mat4 projection_matrix;
+glm::mat4 view_matrix;
+glm::vec3 camera_pos;
 
-void eventHandler(bool* quit) {
+void eventHandler(bool* quit, float& x_pos, float& z_pos) {
 	while (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_QUIT) {
 			*quit = true;
@@ -35,7 +36,7 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_a:
-				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
+				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_s:
@@ -43,15 +44,15 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_d:
-				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
+				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_q:
-				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_e:
-				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
+				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			// Translation
@@ -60,7 +61,7 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_LEFT:
-				transform_matrix = glm::translate(transform_matrix, glm::vec3(-0.1f, 0.0f, 0.0f));
+				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.1f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_DOWN:
@@ -68,7 +69,7 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_RIGHT:
-				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.1f, 0.1f, 0.0f));
+				transform_matrix = glm::translate(transform_matrix, glm::vec3(-0.1f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			// Skalierung
@@ -77,8 +78,21 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			case SDLK_f:
-				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.91f, 0.91f, 0.91f));
+				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.914f, 0.914f, 0.914f));
 				ourShader.setTransform("transform", transform_matrix);
+				break;
+			//Kamera (über Numpad-Pfeile steuerbar)
+			case SDLK_KP_8:
+				z_pos += 0.1f;
+				break;
+			case SDLK_KP_2:
+				z_pos += -0.1f;
+				break;
+			case SDLK_KP_4:
+				x_pos += 0.1f;
+				break;
+			case SDLK_KP_6:
+				x_pos -= 0.1f;
 				break;
 			}
 		}
@@ -91,7 +105,7 @@ int main(int argc, char** argv) {
 	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	window = SDL_CreateWindow("Computer Grafik", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 800, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("Computer Grafik", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
 	SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 
 	GLboolean glewExperimental = GL_TRUE;
@@ -153,27 +167,37 @@ int main(int argc, char** argv) {
 
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
 	transform_matrix = glm::mat4(1.0f);
+	view_matrix = glm::mat4(1.0f);
+	projection_matrix = glm::mat4(1.0f);
+
+	projection_matrix = glm::perspective(glm::radians(60.0f), 1280.0f/720.0f, 0.1f, 100.0f);
+	
+	ourShader.use();
+	ourShader.setProjection("projection", projection_matrix);
+	ourShader.setTransform("transform", transform_matrix);
+
+	float x_pos = 0.0f;
+	float z_pos = 2.0f;
 
 	// Render Loop
 	bool quit = false;
-	
-	//glUseProgram(shaderProgram);
-	ourShader.use();
-	transform_matrix = glm::scale(transform_matrix, glm::vec3(0.5f, 0.5f, 0.5f));
-	ourShader.setTransform("transform", transform_matrix);
 
 	while (!quit) {
 		// Events
-		eventHandler(&quit);
+		eventHandler(&quit, x_pos, z_pos);
 		
 		// leere Fenster
-		glClearColor(background_color[0], background_color[1], background_color[2], 1);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Rendering
+		camera_pos = glm::vec3(x_pos, 0.0f, z_pos);
+		view_matrix = glm::lookAt(camera_pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		ourShader.use();
+		ourShader.setView("view", view_matrix);
+
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
 

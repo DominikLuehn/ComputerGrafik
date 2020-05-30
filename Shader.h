@@ -85,6 +85,14 @@ class Shader {
 			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
+		void setView(std::string name, glm::mat4 matrix) {
+			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+		}
+
+		void setProjection(std::string name, glm::mat4 matrix) {
+			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+		}
+
 	private:
 
 		void checkCompileErrors(GLuint shader, std::string type)

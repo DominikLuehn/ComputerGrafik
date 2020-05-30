@@ -24,4 +24,12 @@
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="Vertex.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
+    <Text Include="Fragment.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
