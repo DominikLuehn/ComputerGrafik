@@ -103,15 +103,15 @@ int main(int argc, char** argv) {
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 	
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 	window = SDL_CreateWindow("Computer Grafik", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
 	SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 
 	GLboolean glewExperimental = GL_TRUE;
 	GLenum err = glewInit();
 	if (err != GLEW_OK){
-		std::cout << "F" << std::endl;
+		std::cout << "GLEW Error: " << glewGetErrorString(err) << std::endl;
 		exit(EXIT_FAILURE);
 	}
 
