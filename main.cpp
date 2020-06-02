@@ -99,6 +99,41 @@ void eventHandler(bool* quit, float& x_pos, float& z_pos) {
 	}
 }
 
+std::vector<glm::vec3> calcNormals(float vertices[]) {
+	std::vector<glm::vec3> normals;
+	glm::vec3 point_a;
+	glm::vec3 point_b;
+	glm::vec3 point_c;
+	glm::vec3 vec1;
+	glm::vec3 vec2;
+	glm::vec3 normal;
+
+	for (int i = 0; i < 4; i++) {
+		point_a = glm::vec3(vertices[0 + i * 27], vertices[1 + i * 27], vertices[2 + i * 27]);
+		point_b = glm::vec3(vertices[0 + i * 27 + 9], vertices[1 + i * 27 + 9], vertices[2 + i * 27 + 9]);
+		point_c = glm::vec3(vertices[0 + i * 27 + 2 * 9], vertices[1 + i * 27 + 2 * 9], vertices[2 + i * 27 + 2 * 9]);
+
+		std::cout << "Punkt a : " << point_a.x << "|" << point_a.y << "|" << point_a.z << std::endl;
+		std::cout << "Punkt b : " << point_b.x << "|" << point_b.y << "|" << point_b.z << std::endl;
+		std::cout << "Punkt c : " << point_c.x << "|" << point_c.y << "|" << point_c.z << std::endl;
+
+		vec1 = point_b - point_a;
+		vec2 = point_c - point_a;
+
+		std::cout << "Vektor a : " << vec1.x << "|" << vec1.y << "|" << vec1.z << std::endl;
+		std::cout << "Vektor b : " << vec2.x << "|" << vec2.y << "|" << vec2.z << std::endl;
+
+		normal = glm::normalize(glm::cross(vec1, vec2));
+
+		std::cout << "Normale : " << normal.x << "|" << normal.y << "|" << normal.z << std::endl;
+
+		normals.push_back(normal);
+		std::cout << "----------------------------------------------------" << std::endl;
+	}
+
+	return normals;
+}
+
 int main(int argc, char** argv) {
 
 	SDL_Init(SDL_INIT_EVERYTHING);
@@ -116,29 +151,51 @@ int main(int argc, char** argv) {
 	}
 
 	float vertices[]{
-		// Position			|	Farbe			   |	Normalen
+		// Normalen wurden vorher gesetzt, da das Abspeichern der berechneten Normalen nicht klappt
+		// Position			|	Farbe			   |	Normalen			
 		// erstes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,
-	/*1*/  0.6f, -0.6f, 0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,
-	/*2*/  0.0f, -0.6f,-0.78f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,
+	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  1.0f,  0.0f,
+	/*1*/  0.6f, -0.6f, 0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  1.0f,  0.0f,
+	/*2*/  0.0f, -0.6f,-0.78f,	1.0f,  0.0f,  0.0f,		0.0f,  1.0f,  0.0f,
 
 		 // zweites Dreieck
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.853083f,  0.284361f,  -0.437479f,
+	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.853083f,  0.284361f,  -0.437479f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.853083f,  0.284361f,  -0.437479f,
 
 		// drittes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,
+	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.309086f,  0.951034f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.309086f,  0.951034f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.309086f,  0.951034f,
 
 		// viertes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f
+	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.853083f,  -0.284361f,  0.437479f,
+	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.853083f,  -0.284361f,  0.437479f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.853083f,  -0.284361f,  0.437479f,
 	};
 
 	ourShader = Shader("Vertex.txt", "Fragment.txt");
+
+	// Berechnung der Normalen
+	int amount;
+	amount = (sizeof(vertices) / sizeof(float)) / 27; // 27 Elemente pro Dreieck
+
+	// Normalen berechnen
+	std::vector<glm::vec3> normals = calcNormals(vertices);
+
+	for (int i = 0; i < normals.size(); i++) {
+		std::cout << "Normale " << i << ": " << normals.at(i).x << "|" << normals.at(i).y << "|" << normals.at(i).z << std::endl;
+	}
+
+	// Wert der Normalen setzen
+	/*int offset = 6;
+	for (int i = 0; i < normals.size(); i++) { // für jedes Dreieck
+		for (int c = 0; c < 1;) {
+			vertices[c * 9 + i * 27 + offset] = normals.at(i).x;
+			vertices[c * 9 + i * 27 + offset + 1] = normals.at(i).y;
+			vertices[c * 9 + i * 27 + offset + 2] = normals.at(i).z;
+		}
+	}*/
 
 	// VAO, VBOerstellen
 	GLuint VBO, VAO;
@@ -177,7 +234,7 @@ int main(int argc, char** argv) {
 	ourShader.setTransform("transform", transform_matrix);
 
 	float x_pos = 0.0f;
-	float z_pos = 2.0f;
+	float z_pos = -2.0f;
 
 	// Render Loop
 	bool quit = false;
