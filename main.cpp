@@ -121,7 +121,7 @@ void calcNormals(float vertices[]) {
 		normals.push_back(normal);
 	}
 
-	// Wert der Normalen setzen
+	// Wert der Normalen setzen - klappt nicht
 	int offset = 6;
 	for (int i = 0; i < normals.size(); i++) { // für jedes Dreieck
 		for (int c = 0; c < 3; c++) {
@@ -176,6 +176,8 @@ int main(int argc, char** argv) {
 
 	// Normalen berechnen
 	calcNormals(vertices);
+
+	std::cout << "Normale 1:" << vertices[6] << "|" << vertices[7] << "|" << vertices[8] << std::endl;
 
 	// VAO, VBOerstellen
 	GLuint VBO, VAO;
