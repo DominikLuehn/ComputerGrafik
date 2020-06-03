@@ -99,7 +99,7 @@ void eventHandler(bool* quit, float& x_pos, float& z_pos) {
 	}
 }
 
-void calcNormals(float vertices[]) {
+void calcNormals(float vertices[], int size) {
 	std::vector<glm::vec3> normals;
 	glm::vec3 point_a;
 	glm::vec3 point_b;
@@ -108,8 +108,7 @@ void calcNormals(float vertices[]) {
 	glm::vec3 vec2;
 	glm::vec3 normal;
 
-	int amount = (sizeof(vertices) / sizeof(float)) / 27; // 27 Elemente pro Dreieck
-	for (int i = 0; i < amount; i++) {
+	for (int i = 0; i < size; i++) {
 		point_a = glm::vec3(vertices[0 + i * 27], vertices[1 + i * 27], vertices[2 + i * 27]);
 		point_b = glm::vec3(vertices[0 + i * 27 + 9], vertices[1 + i * 27 + 9], vertices[2 + i * 27 + 9]);
 		point_c = glm::vec3(vertices[0 + i * 27 + 2 * 9], vertices[1 + i * 27 + 2 * 9], vertices[2 + i * 27 + 2 * 9]);
@@ -121,15 +120,17 @@ void calcNormals(float vertices[]) {
 		normals.push_back(normal);
 	}
 
-	// Wert der Normalen setzen - klappt nicht
+	// Wert der Normalen setzen
 	int offset = 6;
 	for (int i = 0; i < normals.size(); i++) { // für jedes Dreieck
-		for (int c = 0; c < 3; c++) {
+		for (int c = 0; c < 3; c++) { // jede Normale pro Dreieck für jeden Vertex
 			vertices[c * 9 + i * 27 + offset] = normals.at(i).x;
 			vertices[c * 9 + i * 27 + offset + 1] = normals.at(i).y;
 			vertices[c * 9 + i * 27 + offset + 2] = normals.at(i).z;
 		}
 	}
+
+	std::cout << vertices[0 * 9 + 0 * 27 + offset] << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -175,7 +176,8 @@ int main(int argc, char** argv) {
 	ourShader = Shader("Vertex.txt", "Fragment.txt");
 
 	// Normalen berechnen
-	calcNormals(vertices);
+	int size = sizeof(vertices) / (sizeof(float) * 27); // 27 Floats pro Dreieck
+	calcNormals(vertices, size);
 
 	std::cout << "Normale 1:" << vertices[6] << "|" << vertices[7] << "|" << vertices[8] << std::endl;
 
