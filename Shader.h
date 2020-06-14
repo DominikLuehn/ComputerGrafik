@@ -15,8 +15,9 @@
 
 class Shader {
 
+		unsigned int ID_;
+
 	public:
-		unsigned int ID;
 
 		Shader() {}
 
@@ -62,35 +63,35 @@ class Shader {
 			glCompileShader(fragment);
 			checkCompileErrors(fragment, "Fragment");
 
-			ID = glCreateProgram();
-			glAttachShader(ID, vertex);
-			glAttachShader(ID, fragment);
+			ID_ = glCreateProgram();
+			glAttachShader(ID_, vertex);
+			glAttachShader(ID_, fragment);
 
-			glLinkProgram(ID);
-			checkCompileErrors(ID, "Program");
+			glLinkProgram(ID_);
+			checkCompileErrors(ID_, "Program");
 
 			glDeleteShader(vertex);
 			glDeleteShader(fragment);
 		}
 
 		void use() {
-			glUseProgram(ID);
+			glUseProgram(ID_);
 		}
 
 		void erase() {
-			glDeleteProgram(ID);
+			glDeleteProgram(ID_);
 		}
 
 		void setTransform(std::string name, glm::mat4 matrix) {
-			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
 		void setView(std::string name, glm::mat4 matrix) {
-			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
 		void setProjection(std::string name, glm::mat4 matrix) {
-			glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
+			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
 	private:

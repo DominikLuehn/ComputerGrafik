@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
+#include <ctime>
 
 #include "Shader.h"
+#include "Camera.h"
 
 #include "SDL.h"
 #include "glew.h"
@@ -11,19 +13,36 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+const float ScreenWidth = 1280;
+const float ScreenHeight = 720;
+
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
+float lastX = ScreenWidth / 2.0f;
+float lastY = ScreenHeight / 2.0f;
+bool firstMouse = true;
+
+// Shader
 Shader ourShader;
+
 SDL_Window* window;
 SDL_Event event;
 glm::mat4 transform_matrix;
 glm::mat4 projection_matrix;
 glm::mat4 view_matrix;
-glm::vec3 camera_pos;
 
-void eventHandler(bool* quit, float& x_pos, float& z_pos) {
+void eventHandler(bool* quit) {
+	const float cameraSpeed = 0.05f;
 	while (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_QUIT) {
 			*quit = true;
 			break;
+		}
+		else if (event.type == SDL_MOUSEMOTION) {
+			camera.ProcessMouseMovement(event.motion.xrel, event.motion.yrel);
+		}
+		else if (event.type == SDL_MOUSEWHEEL) {
+			camera.ProcessMouseScroll(event.motion.x);
 		}
 		else {
 			switch (event.key.keysym.sym) {
@@ -83,16 +102,16 @@ void eventHandler(bool* quit, float& x_pos, float& z_pos) {
 				break;
 			//Kamera (über Numpad-Pfeile steuerbar)
 			case SDLK_KP_8:
-				z_pos += 0.1f;
+				camera.ProcessKeyBoard(FORWARD);
 				break;
-			case SDLK_KP_2:
-				z_pos += -0.1f;
+			case SDLK_KP_5:
+				camera.ProcessKeyBoard(BACK);
 				break;
 			case SDLK_KP_4:
-				x_pos += 0.1f;
+				camera.ProcessKeyBoard(LEFT);
 				break;
 			case SDLK_KP_6:
-				x_pos -= 0.1f;
+				camera.ProcessKeyBoard(RIGHT);
 				break;
 			}
 		}
@@ -129,8 +148,6 @@ void calcNormals(float vertices[], int size) {
 			vertices[c * 9 + i * 27 + offset + 2] = normals.at(i).z;
 		}
 	}
-
-	std::cout << vertices[0 * 9 + 0 * 27 + offset] << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -139,7 +156,7 @@ int main(int argc, char** argv) {
 	
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-	window = SDL_CreateWindow("Computer Grafik", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_OPENGL);
+	window = SDL_CreateWindow("Computer Grafik", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ScreenWidth, ScreenHeight, SDL_WINDOW_OPENGL);
 	SDL_GLContext glcontext = SDL_GL_CreateContext(window);
 
 	GLboolean glewExperimental = GL_TRUE;
@@ -148,6 +165,8 @@ int main(int argc, char** argv) {
 		std::cout << "GLEW Error: " << glewGetErrorString(err) << std::endl;
 		exit(EXIT_FAILURE);
 	}
+
+	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	float vertices[]{
 		// Normalen wurden vorher gesetzt, da das Abspeichern der berechneten Normalen nicht klappt
@@ -179,8 +198,6 @@ int main(int argc, char** argv) {
 	int size = sizeof(vertices) / (sizeof(float) * 27); // 27 Floats pro Dreieck
 	calcNormals(vertices, size);
 
-	std::cout << "Normale 1:" << vertices[6] << "|" << vertices[7] << "|" << vertices[8] << std::endl;
-
 	// VAO, VBOerstellen
 	GLuint VBO, VAO;
 	
@@ -211,21 +228,17 @@ int main(int argc, char** argv) {
 	view_matrix = glm::mat4(1.0f);
 	projection_matrix = glm::mat4(1.0f);
 
-	projection_matrix = glm::perspective(glm::radians(60.0f), 1280.0f/720.0f, 0.1f, 100.0f);
 	
 	ourShader.use();
-	ourShader.setProjection("projection", projection_matrix);
 	ourShader.setTransform("transform", transform_matrix);
-
-	float x_pos = 0.0f;
-	float z_pos = -2.0f;
 
 	// Render Loop
 	bool quit = false;
 
 	while (!quit) {
+
 		// Events
-		eventHandler(&quit, x_pos, z_pos);
+		eventHandler(&quit);
 		
 		// leere Fenster
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -233,12 +246,13 @@ int main(int argc, char** argv) {
 		glDepthFunc(GL_LESS);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Rendering
-		camera_pos = glm::vec3(x_pos, 0.0f, z_pos);
-		view_matrix = glm::lookAt(camera_pos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		projection_matrix = glm::perspective(glm::radians(camera.Zoom_), ScreenWidth/ScreenHeight, 0.1f, 100.0f);
+		ourShader.setProjection("projection", projection_matrix);
+		view_matrix = camera.getViewMatrix();
 		ourShader.use();
 		ourShader.setView("view", view_matrix);
 
+		// Rendering
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
 
