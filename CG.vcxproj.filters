@@ -18,6 +18,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="stb_image_implementation.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -26,12 +29,21 @@
     <ClInclude Include="Camera.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Vertex.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
     <Text Include="Fragment.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
+    <Text Include="skybox_fragment.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
+    <Text Include="skybox_vertex.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
   </ItemGroup>

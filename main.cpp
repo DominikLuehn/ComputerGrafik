@@ -6,6 +6,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "stb_image.h"
 
 #include "SDL.h"
 #include "glew.h"
@@ -17,13 +18,13 @@ const float ScreenWidth = 1280;
 const float ScreenHeight = 720;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
+Camera camera(glm::vec3(0.0f, 2.0f, -3.0f));
 float lastX = ScreenWidth / 2.0f;
 float lastY = ScreenHeight / 2.0f;
-bool firstMouse = true;
 
 // Shader
 Shader ourShader;
+Shader skyboxShader;
 
 SDL_Window* window;
 SDL_Event event;
@@ -118,7 +119,7 @@ void eventHandler(bool* quit) {
 	}
 }
 
-void calcNormals(float vertices[], int size) {
+void calcNormals(float vertices[], int size, int floats_per_triangle, int floats_per_vertex) {
 	std::vector<glm::vec3> normals;
 	glm::vec3 point_a;
 	glm::vec3 point_b;
@@ -128,9 +129,9 @@ void calcNormals(float vertices[], int size) {
 	glm::vec3 normal;
 
 	for (int i = 0; i < size; i++) {
-		point_a = glm::vec3(vertices[0 + i * 27], vertices[1 + i * 27], vertices[2 + i * 27]);
-		point_b = glm::vec3(vertices[0 + i * 27 + 9], vertices[1 + i * 27 + 9], vertices[2 + i * 27 + 9]);
-		point_c = glm::vec3(vertices[0 + i * 27 + 2 * 9], vertices[1 + i * 27 + 2 * 9], vertices[2 + i * 27 + 2 * 9]);
+		point_a = glm::vec3(vertices[0 + i * floats_per_triangle], vertices[1 + i * floats_per_triangle], vertices[2 + i * floats_per_triangle]);
+		point_b = glm::vec3(vertices[0 + i * floats_per_triangle + floats_per_vertex], vertices[1 + i * floats_per_triangle + floats_per_vertex], vertices[2 + i * floats_per_triangle + floats_per_vertex]);
+		point_c = glm::vec3(vertices[0 + i * floats_per_triangle + 2 * floats_per_vertex], vertices[1 + i * floats_per_triangle + 2 * floats_per_vertex], vertices[2 + i * floats_per_triangle + 2 * floats_per_vertex]);
 
 		vec1 = point_b - point_a;
 		vec2 = point_c - point_a;
@@ -143,11 +144,75 @@ void calcNormals(float vertices[], int size) {
 	int offset = 6;
 	for (int i = 0; i < normals.size(); i++) { // für jedes Dreieck
 		for (int c = 0; c < 3; c++) { // jede Normale pro Dreieck für jeden Vertex
-			vertices[c * 9 + i * 27 + offset] = normals.at(i).x;
-			vertices[c * 9 + i * 27 + offset + 1] = normals.at(i).y;
-			vertices[c * 9 + i * 27 + offset + 2] = normals.at(i).z;
+			vertices[c * floats_per_vertex + i * floats_per_triangle + offset] = normals.at(i).x;
+			vertices[c * floats_per_vertex + i * floats_per_triangle + offset + 1] = normals.at(i).y;
+			vertices[c * floats_per_vertex + i * floats_per_triangle + offset + 2] = normals.at(i).z;
 		}
 	}
+}
+
+unsigned int loadCubemap(std::vector<std::string> faces) {
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+	unsigned char* data;
+	for (unsigned int i = 0; i < faces.size(); i++) {
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		if (data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else {
+			std::cout << "Laden von Cubemap Texture bei: " << faces[i] << " nicht geladen!" << std::endl;
+			stbi_image_free(data);
+		}
+	}
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
+}
+
+unsigned int loadTexture(char const* path) {
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
+	if (data) {
+		GLenum format;
+		if (nrComponents == 1) {
+			format = GL_RED;
+		}
+		else if (nrComponents == 3) {
+			format = GL_RGB;
+		}
+		else if (nrComponents == 4) {
+			format = GL_RGBA;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else {
+		std::cout << "Texture konnte nicht geladen werden von: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
 }
 
 int main(int argc, char** argv) {
@@ -169,36 +234,103 @@ int main(int argc, char** argv) {
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	float vertices[]{
-		// Normalen wurden vorher gesetzt, da das Abspeichern der berechneten Normalen nicht klappt
-		// Position			|	Farbe			   |	Normalen			
+		// Position			|	Farbe			   |	Normalen				| Texturekoordinaten
 		// erstes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,
-	/*1*/  0.6f, -0.6f, 0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,
-	/*2*/  0.0f, -0.6f,-0.78f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,
+	/*0*/ -0.6f, -0.6f,  0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,  0.0f,
+	/*1*/  0.6f, -0.6f,  0.39f,	0.0f,  1.0f,  0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,  0.0f,
+	/*2*/  0.0f, -0.6f, -0.78f,	0.0f,  0.0f,  1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f,
 
 		 // zweites Dreieck
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 0.39f,
+	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,-0.78f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f,
 
 		// drittes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,
+	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 0.39f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 0.39f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f,
 
 		// viertes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f
+	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 0.39f,
+	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,-0.78f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f
+	};
+
+	float skyboxVertices[] = {
+		// Position          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f
 	};
 
 	ourShader = Shader("Vertex.txt", "Fragment.txt");
+	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
+
+	// Texturen
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// Set texture wrapping options
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// Set texture filtering options 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// Load Image
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load("moneyprintergobrrr.jpg", &width, &height, &nrChannels, 0);
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << "Failed to load texture!" << std::endl;
+	}
+	stbi_image_free(data);
 
 	// Normalen berechnen
-	int size = sizeof(vertices) / (sizeof(float) * 27); // 27 Floats pro Dreieck
-	calcNormals(vertices, size);
+	int size = sizeof(vertices) / (sizeof(float) * 36); // 36 Floats pro Dreieck
+	calcNormals(vertices, size, 36, 12);
 
-	// VAO, VBOerstellen
+	// VAO, VBO erstellen
 	GLuint VBO, VAO;
 	
 	glGenVertexArrays(1, &VAO);
@@ -212,26 +344,53 @@ int main(int argc, char** argv) {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// Vertex Positionen einem Array-Index zuordnen
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Farbwerte
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	// Normalen
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
+
+	// Texturen
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)(9 * sizeof(float)));
+	glEnableVertexAttribArray(3);
 
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
 	transform_matrix = glm::mat4(1.0f);
 	view_matrix = glm::mat4(1.0f);
 	projection_matrix = glm::mat4(1.0f);
 
+	// --------------------------------------------------------------------------------------------------
+	// Skybox
+	unsigned int skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	std::vector<std::string> faces{
+		"resources/skybox/right.jpg",
+		"resources/skybox/left.jpg",
+		"resources/skybox/top.jpg",
+		"resources/skybox/bottom.jpg",
+		"resources/skybox/front.jpg",
+		"resources/skybox/back.jpg"
+	};
+	unsigned int cubemapTexture = loadCubemap(faces);
+
 	
 	ourShader.use();
 	ourShader.setTransform("transform", transform_matrix);
 
+	skyboxShader.use();
+	skyboxShader.setInt("skybox", 0);
 	// Render Loop
 	bool quit = false;
 
@@ -247,22 +406,42 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		projection_matrix = glm::perspective(glm::radians(camera.Zoom_), ScreenWidth/ScreenHeight, 0.1f, 100.0f);
-		ourShader.setProjection("projection", projection_matrix);
-		view_matrix = camera.getViewMatrix();
 		ourShader.use();
-		ourShader.setView("view", view_matrix);
+		ourShader.setProjection("projection", projection_matrix);
+		ourShader.setView("view", camera.getViewMatrix());
+
+		// bind Texture
+		glBindTexture(GL_TEXTURE_2D, texture);
 
 		// Rendering
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
+
+		// Skybox
+		glDepthFunc(GL_LEQUAL);
+		skyboxShader.use();
+		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
+		skyboxShader.setView("view",view);
+		ourShader.setProjection("projection", projection_matrix);
+
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS);
+
 
 		// tausche Puffer
 		SDL_GL_SwapWindow(window);
 	}
 
 	glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &skyboxVAO);
 	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &skyboxVBO);
 	ourShader.erase();
+	skyboxShader.erase();
 
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);

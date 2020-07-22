@@ -1,12 +1,15 @@
 #version 330 core
 
-layout(location = 0)out vec3 color;
+layout(location = 0)out vec4 FragColor;
 
 in vec3 ourColor;
 in vec3 vertex_normal_worldspace;
+in vec3 TexCoord;
+
+uniform sampler2D ourTexture;
 
 void main(){
 	float nz = vertex_normal_worldspace.z; 
 	float factor = 0.5 + 0.5 * abs(nz); 
-	color = factor * ourColor;
+	FragColor = texture(ourTexture, TexCoord.xy);
 }

@@ -90,6 +90,10 @@ class Shader {
 			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
+		void setInt(std::string name, int value) {
+			glUniform1i(glGetUniformLocation(ID_, name.c_str()), value);
+		}
+
 		void setProjection(std::string name, glm::mat4 matrix) {
 			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}

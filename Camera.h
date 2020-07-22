@@ -85,8 +85,6 @@ class Camera {
 			Yaw_ += xoffset;
 			Pitch_ += -yoffset;
 
-			std::cout << Pitch_ << std::endl;
-
 			// make sure that when pitch is out of bounds, screen doesn't get flipped
 			if (constrainPitch)
 			{
