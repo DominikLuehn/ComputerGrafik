@@ -94,6 +94,10 @@ class Shader {
 			glUniform1i(glGetUniformLocation(ID_, name.c_str()), value);
 		}
 
+		void setVec3(std::string name, glm::vec3 value) {
+			glUniform3fv(glGetUniformLocation(ID_, name.c_str()), 1, &value[0]);
+		}
+
 		void setProjection(std::string name, glm::mat4 matrix) {
 			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}

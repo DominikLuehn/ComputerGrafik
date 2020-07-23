@@ -107,6 +107,10 @@ class Camera {
 			}
 		}
 
+		glm::vec3 getPosition() {
+			return Position_;
+		}
+
 	private:
 
 		void UpdateCameraVectors() {

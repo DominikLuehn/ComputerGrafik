@@ -18,7 +18,7 @@ const float ScreenWidth = 1280;
 const float ScreenHeight = 720;
 
 // camera
-Camera camera(glm::vec3(0.0f, 2.0f, -3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
 float lastX = ScreenWidth / 2.0f;
 float lastY = ScreenHeight / 2.0f;
 
@@ -258,53 +258,54 @@ int main(int argc, char** argv) {
 
 	float skyboxVertices[] = {
 		// Position          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
+		-50.0f,  50.0f, -50.0f,
+		-50.0f, -50.0f, -50.0f,
+		 50.0f, -50.0f, -50.0f,
+		 50.0f, -50.0f, -50.0f,
+		 50.0f,  50.0f, -50.0f,
+		-50.0f,  50.0f, -50.0f,
 
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
+		-50.0f, -50.0f,  50.0f,
+		-50.0f, -50.0f, -50.0f,
+		-50.0f,  50.0f, -50.0f,
+		-50.0f,  50.0f, -50.0f,
+		-50.0f,  50.0f,  50.0f,
+		-50.0f, -50.0f,  50.0f,
 
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
+		 50.0f, -50.0f, -50.0f,
+		 50.0f, -50.0f,  50.0f,
+		 50.0f,  50.0f,  50.0f,
+		 50.0f,  50.0f,  50.0f,
+		 50.0f,  50.0f, -50.0f,
+		 50.0f, -50.0f, -50.0f,
 
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
+		-50.0f, -50.0f,  50.0f,
+		-50.0f,  50.0f,  50.0f,
+		 50.0f,  50.0f,  50.0f,
+		 50.0f,  50.0f,  50.0f,
+		 50.0f, -50.0f,  50.0f,
+		-50.0f, -50.0f,  50.0f,
 
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
+		-50.0f,  50.0f, -50.0f,
+		 50.0f,  50.0f, -50.0f,
+		 50.0f,  50.0f,  50.0f,
+		 50.0f,  50.0f,  50.0f,
+		-50.0f,  50.0f,  50.0f,
+		-50.0f,  50.0f, -50.0f,
 
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
+		-50.0f, -50.0f, -50.0f,
+		-50.0f, -50.0f,  50.0f,
+		 50.0f, -50.0f, -50.0f,
+		 50.0f, -50.0f, -50.0f,
+		-50.0f, -50.0f,  50.0f,
+		 50.0f, -50.0f,  50.0f
 	};
 
 	ourShader = Shader("Vertex.txt", "Fragment.txt");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Texturen
+	/*
 	unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -324,7 +325,7 @@ int main(int argc, char** argv) {
 	else {
 		std::cout << "Failed to load texture!" << std::endl;
 	}
-	stbi_image_free(data);
+	stbi_image_free(data);*/
 
 	// Normalen berechnen
 	int size = sizeof(vertices) / (sizeof(float) * 36); // 36 Floats pro Dreieck
@@ -387,7 +388,7 @@ int main(int argc, char** argv) {
 
 	
 	ourShader.use();
-	ourShader.setTransform("transform", transform_matrix);
+	ourShader.setInt("skybox", 0);
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
@@ -400,29 +401,31 @@ int main(int argc, char** argv) {
 		eventHandler(&quit);
 		
 		// leere Fenster
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glDepthFunc(GL_LESS);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		projection_matrix = glm::perspective(glm::radians(camera.Zoom_), ScreenWidth/ScreenHeight, 0.1f, 100.0f);
 		ourShader.use();
+		ourShader.setTransform("transform", transform_matrix);
 		ourShader.setProjection("projection", projection_matrix);
 		ourShader.setView("view", camera.getViewMatrix());
-
-		// bind Texture
-		glBindTexture(GL_TEXTURE_2D, texture);
+		ourShader.setVec3("cameraPos", camera.getPosition());
 
 		// Rendering
 		glBindVertexArray(VAO);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cubemapTexture);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
+		glBindVertexArray(0);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
 		skyboxShader.use();
 		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
 		skyboxShader.setView("view",view);
-		ourShader.setProjection("projection", projection_matrix);
+		skyboxShader.setProjection("projection", projection_matrix);
 
 		glBindVertexArray(skyboxVAO);
 		glActiveTexture(GL_TEXTURE0);
