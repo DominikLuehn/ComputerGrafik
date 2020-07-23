@@ -305,7 +305,6 @@ int main(int argc, char** argv) {
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Texturen
-	/*
 	unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
@@ -325,7 +324,7 @@ int main(int argc, char** argv) {
 	else {
 		std::cout << "Failed to load texture!" << std::endl;
 	}
-	stbi_image_free(data);*/
+	stbi_image_free(data);
 
 	// Normalen berechnen
 	int size = sizeof(vertices) / (sizeof(float) * 36); // 36 Floats pro Dreieck
@@ -389,6 +388,7 @@ int main(int argc, char** argv) {
 	
 	ourShader.use();
 	ourShader.setInt("skybox", 0);
+	ourShader.setInt("ourTexture", 1);
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
@@ -415,8 +415,8 @@ int main(int argc, char** argv) {
 
 		// Rendering
 		glBindVertexArray(VAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cubemapTexture);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
 		glBindVertexArray(0);
 
