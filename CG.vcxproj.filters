@@ -32,6 +32,12 @@
     <ClInclude Include="stb_image.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Vertex.txt">

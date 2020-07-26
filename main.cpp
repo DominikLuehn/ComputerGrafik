@@ -4,6 +4,7 @@
 #include <vector>
 #include <ctime>
 
+#include "Model.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "stb_image.h"
@@ -236,24 +237,24 @@ int main(int argc, char** argv) {
 	float vertices[]{
 		// Position			|	Farbe			   |	Normalen				| Texturekoordinaten
 		// erstes Dreieck
-	/*0*/ -0.6f, -0.6f,  0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,  0.0f,
-	/*1*/  0.6f, -0.6f,  0.39f,	0.0f,  1.0f,  0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,  0.0f,
-	/*2*/  0.0f, -0.6f, -0.78f,	0.0f,  0.0f,  1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f,
+	/*0*/ -0.6f, -0.6f,  0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 
+	/*1*/  0.6f, -0.6f,  0.39f,	0.0f,  1.0f,  0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,  
+	/*2*/  0.0f, -0.6f, -0.78f,	0.0f,  0.0f,  1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		 // zweites Dreieck
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 0.39f,
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,-0.78f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 
+	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		// drittes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 0.39f,
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 0.39f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f,
+	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		// viertes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 0.39f,
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,-0.78f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  0.0f
+	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 
+	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f
 	};
 
 	float skyboxVertices[] = {
@@ -305,7 +306,7 @@ int main(int argc, char** argv) {
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Texturen
-	unsigned int texture;
+	/*unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// Set texture wrapping options
@@ -327,8 +328,8 @@ int main(int argc, char** argv) {
 	stbi_image_free(data);
 
 	// Normalen berechnen
-	int size = sizeof(vertices) / (sizeof(float) * 36); // 36 Floats pro Dreieck
-	calcNormals(vertices, size, 36, 12);
+	int size = sizeof(vertices) / (sizeof(float) * 33); // 36 Floats pro Dreieck
+	calcNormals(vertices, size, 33, 11);
 
 	// VAO, VBO erstellen
 	GLuint VBO, VAO;
@@ -344,20 +345,20 @@ int main(int argc, char** argv) {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// Vertex Positionen einem Array-Index zuordnen
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Farbwerte
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 
 	// Normalen
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	// Texturen
-	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(GLfloat), (void*)(9 * sizeof(float)));
-	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(9 * sizeof(float)));
+	glEnableVertexAttribArray(3);*/
 
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
 	transform_matrix = glm::mat4(1.0f);
@@ -395,6 +396,9 @@ int main(int argc, char** argv) {
 	// Render Loop
 	bool quit = false;
 
+	Model ourModel("resources/objects/tobitlabs.obj");
+	Model model2("resources/objects/turm/turm.obj");
+
 	while (!quit) {
 
 		// Events
@@ -414,11 +418,13 @@ int main(int argc, char** argv) {
 		ourShader.setVec3("cameraPos", camera.getPosition());
 
 		// Rendering
-		glBindVertexArray(VAO);
+		/*glBindVertexArray(VAO);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
+		ourModel.Draw(ourShader);
+		model2.Draw(ourShader);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
@@ -439,9 +445,9 @@ int main(int argc, char** argv) {
 		SDL_GL_SwapWindow(window);
 	}
 
-	glDeleteVertexArrays(1, &VAO);
+	//glDeleteVertexArrays(1, &VAO);
 	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &VBO);
+	//glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &skyboxVBO);
 	ourShader.erase();
 	skyboxShader.erase();

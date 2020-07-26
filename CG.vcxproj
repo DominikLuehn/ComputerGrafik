@@ -103,13 +103,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\glm;$(SolutionDir)\dependencies\glew-2.1.0\include\GL;$(SolutionDir)\dependencies\SDL2-2.0.12\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\assimp\include;$(SolutionDir)\dependencies\glm;$(SolutionDir)\dependencies\glew-2.1.0\include\GL;$(SolutionDir)\dependencies\SDL2-2.0.12\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dependencies\SDL2-2.0.12\lib\x64;$(SolutionDir)\dependencies\glew-2.1.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dependencies\assimp\lib;$(SolutionDir)\dependencies\SDL2-2.0.12\lib\x64;$(SolutionDir)\dependencies\glew-2.1.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -136,15 +136,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\glm;$(SolutionDir)\dependencies\glew-2.1.0\include\GL;$(SolutionDir)\dependencies\SDL2-2.0.12\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\dependencies\assimp\include;$(SolutionDir)\dependencies\glm;$(SolutionDir)\dependencies\glew-2.1.0\include\GL;$(SolutionDir)\dependencies\SDL2-2.0.12\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dependencies\glew-2.1.0\lib\Release\x64;$(SolutionDir)\dependencies\SDL2-2.0.12\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\dependencies\assimp\lib;$(SolutionDir)\dependencies\glew-2.1.0\lib\Release\x64;$(SolutionDir)\dependencies\SDL2-2.0.12\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -153,6 +153,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
