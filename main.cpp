@@ -34,7 +34,7 @@ glm::mat4 projection_matrix;
 glm::mat4 view_matrix;
 
 void eventHandler(bool* quit) {
-	const float cameraSpeed = 0.05f;
+	const float cameraSpeed = 0.1f;
 	while (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_QUIT) {
 			*quit = true;
@@ -52,27 +52,27 @@ void eventHandler(bool* quit) {
 				*quit = true;
 				break;
 			// Rotation
-			case SDLK_w:
+			case SDLK_KP_8:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_a:
+			case SDLK_KP_4:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_s:
+			case SDLK_KP_5:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_d:
+			case SDLK_KP_6:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_q:
+			case SDLK_KP_7:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_e:
+			case SDLK_KP_9:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
@@ -103,16 +103,16 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			//Kamera (über Numpad-Pfeile steuerbar)
-			case SDLK_KP_8:
+			case SDLK_w:
 				camera.ProcessKeyBoard(FORWARD);
 				break;
-			case SDLK_KP_5:
+			case SDLK_s:
 				camera.ProcessKeyBoard(BACK);
 				break;
-			case SDLK_KP_4:
+			case SDLK_a:
 				camera.ProcessKeyBoard(LEFT);
 				break;
-			case SDLK_KP_6:
+			case SDLK_d:
 				camera.ProcessKeyBoard(RIGHT);
 				break;
 			}
@@ -242,13 +242,13 @@ int main(int argc, char** argv) {
 	/*2*/  0.0f, -0.6f, -0.78f,	0.0f,  0.0f,  1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		 // zweites Dreieck
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 
+	/*1*/  0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 
 	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		// drittes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,
+	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,
 	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		// viertes Dreieck
@@ -306,7 +306,7 @@ int main(int argc, char** argv) {
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Texturen
-	/*unsigned int texture;
+	unsigned int texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 	// Set texture wrapping options
@@ -358,7 +358,7 @@ int main(int argc, char** argv) {
 
 	// Texturen
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(9 * sizeof(float)));
-	glEnableVertexAttribArray(3);*/
+	glEnableVertexAttribArray(3);
 
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
 	transform_matrix = glm::mat4(1.0f);
@@ -397,8 +397,8 @@ int main(int argc, char** argv) {
 	bool quit = false;
 
 	Model ourModel("resources/objects/tobitlabs.obj");
-	Model model2("resources/objects/turm/turm.obj");
-
+	//Model model2("resources/objects/boden.obj");
+	int sinWert = 0.0;
 	while (!quit) {
 
 		// Events
@@ -416,31 +416,40 @@ int main(int argc, char** argv) {
 		ourShader.setProjection("projection", projection_matrix);
 		ourShader.setView("view", camera.getViewMatrix());
 		ourShader.setVec3("cameraPos", camera.getPosition());
+		ourShader.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+		ourShader.setVec3("lightPos", glm::vec3(cos(sinWert/ 250) * 50, -50.0f, sin(sinWert / 250) * 50));
 
 		// Rendering
-		/*glBindVertexArray(VAO);
+		glBindVertexArray(VAO);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
-		glBindVertexArray(0);*/
-		ourModel.Draw(ourShader);
-		model2.Draw(ourShader);
-
-		// Skybox
-		glDepthFunc(GL_LEQUAL);
-		skyboxShader.use();
-		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
-		skyboxShader.setView("view",view);
-		skyboxShader.setProjection("projection", projection_matrix);
-
-		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
-		glDepthFunc(GL_LESS);
+		ourModel.Draw(ourShader);
+		//model2.Draw(ourShader);
 
+		//// Skybox
+		//glDepthFunc(GL_LEQUAL);
+		//skyboxShader.use();
+		//glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
+		//skyboxShader.setView("view",view);
+		//skyboxShader.setProjection("projection", projection_matrix);
 
+		//glBindVertexArray(skyboxVAO);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glBindVertexArray(0);
+		//glDepthFunc(GL_LESS);
+
+		if (sinWert == 1000) {
+			sinWert = 0;
+			std::cout << "RESET";
+		}
+		else {
+			sinWert += 1;
+		}
+		std::cout << " " << sinWert;
 		// tausche Puffer
 		SDL_GL_SwapWindow(window);
 	}
