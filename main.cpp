@@ -34,7 +34,7 @@ glm::mat4 projection_matrix;
 glm::mat4 view_matrix;
 
 void eventHandler(bool* quit) {
-	const float cameraSpeed = 0.05f;
+	const float cameraSpeed = 0.1f;
 	while (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_QUIT) {
 			*quit = true;
@@ -52,27 +52,27 @@ void eventHandler(bool* quit) {
 				*quit = true;
 				break;
 			// Rotation
-			case SDLK_w:
+			case SDLK_KP_8:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_a:
+			case SDLK_KP_4:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_s:
+			case SDLK_KP_5:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_d:
+			case SDLK_KP_6:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_q:
+			case SDLK_KP_7:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			case SDLK_e:
+			case SDLK_KP_9:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
@@ -103,16 +103,16 @@ void eventHandler(bool* quit) {
 				ourShader.setTransform("transform", transform_matrix);
 				break;
 			//Kamera (über Numpad-Pfeile steuerbar)
-			case SDLK_KP_8:
+			case SDLK_w:
 				camera.ProcessKeyBoard(FORWARD);
 				break;
-			case SDLK_KP_5:
+			case SDLK_s:
 				camera.ProcessKeyBoard(BACK);
 				break;
-			case SDLK_KP_4:
+			case SDLK_a:
 				camera.ProcessKeyBoard(LEFT);
 				break;
-			case SDLK_KP_6:
+			case SDLK_d:
 				camera.ProcessKeyBoard(RIGHT);
 				break;
 			}
@@ -242,13 +242,13 @@ int main(int argc, char** argv) {
 	/*2*/  0.0f, -0.6f, -0.78f,	0.0f,  0.0f,  1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		 // zweites Dreieck
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 
+	/*1*/  0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 
 	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
+	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		// drittes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,
+	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,
+	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,
 	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
 
 		// viertes Dreieck

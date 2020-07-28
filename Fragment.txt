@@ -27,6 +27,8 @@ uniform Material material;
 uniform vec3 cameraPos;
 uniform samplerCube skybox;
 uniform sampler2D ourTexture;
+uniform vec3 lightPos;
+uniform vec3 lightColor;
 
 void main(){
 	// ambient
