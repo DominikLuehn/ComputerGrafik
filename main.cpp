@@ -441,16 +441,16 @@ int main(int argc, char** argv) {
 		ourShader.setVec3("light.diffuse", glm::vec3(0.3f, 0.3f, 0.3f));
 		ourShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-		ourShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
-		ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
+		ourShader.setVec3("material.ambient", glm::vec3(0.3f, 0.3f, 0.31f));
+		ourShader.setVec3("material.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
 		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		ourShader.setFloat("material.shininess", 1000.0f);
 
 		// Set spotlight
 
-		ourShader.setVec3("spotlight.position", camera.Position_);
-		ourShader.setVec3("spotlight.direction", camera.Front_);
-		ourShader.setVec3("spotlight.color", glm::vec3(0.0f, 0.0f, 0.5f));
+		ourShader.setVec3("spotlight.position", glm::vec3(0.0f, 20.0f, 0.5f));
+		ourShader.setVec3("spotlight.direction", glm::vec3(0.0f, -1.0f, 0.5f));
+		ourShader.setVec3("spotlight.color", glm::vec3(0.0f, 0.0f, 1.0f));
 		ourShader.setFloat("spotlight.cutOff", glm::cos(glm::radians(12.5f)));
 		ourShader.setFloat("spotlight.outerCutOff", glm::cos(glm::radians(17.5f)));
 

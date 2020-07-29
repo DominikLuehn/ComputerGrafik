@@ -18,6 +18,7 @@ struct Light {
 struct SpotLight {
     vec3  position;
     vec3  direction;
+	vec3 color;
     float cutOff;
 	float outerCutOff;
 };  
@@ -41,12 +42,12 @@ uniform vec3 lightColor;
 void main(){
 	// ambient
 	vec3 ambient = light.ambient * material.ambient;
-	vec3 spotLightViewDir = normalize(cameraPos - Position);
+	vec3 spotLightViewDir = normalize(spotlight.position - Position);
 
 	// Spotlight
 	float theta = dot(spotLightViewDir, normalize(-spotlight.direction));
 	float epsilon = (spotlight.cutOff - spotlight.outerCutOff);
-	float intensity = 1 + clamp((theta - spotlight.outerCutOff) / epsilon, 0.0, 1.0);
+	float intensity = 1 + clamp((theta - spotlight.outerCutOff) / epsilon, 0.0, 1.0) ;
 
 
 	// diffuse
@@ -57,6 +58,10 @@ void main(){
 
 	diffuse *= intensity;
 
+	if(theta > spotlight.cutOff) 
+	{       
+	  diffuse += spotlight.color * (diff * material.diffuse);
+	}
 
 	// specular
 	vec3 viewDir = normalize(cameraPos - Position);
