@@ -446,6 +446,14 @@ int main(int argc, char** argv) {
 		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		ourShader.setFloat("material.shininess", 1000.0f);
 
+		// Set spotlight
+
+		ourShader.setVec3("spotlight.position", camera.Position_);
+		ourShader.setVec3("spotlight.direction", camera.Front_);
+		ourShader.setVec3("spotlight.color", glm::vec3(0.0f, 0.0f, 0.5f));
+		ourShader.setFloat("spotlight.cutOff", glm::cos(glm::radians(12.5f)));
+		ourShader.setFloat("spotlight.outerCutOff", glm::cos(glm::radians(17.5f)));
+
 		// Rendering
 		glBindVertexArray(VAO);
 		glActiveTexture(GL_TEXTURE1);
