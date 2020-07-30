@@ -55,53 +55,53 @@ void eventHandler(bool* quit) {
 			// Rotation
 			case SDLK_KP_8:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_4:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_5:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_6:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_7:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_9:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			// Translation
 			case SDLK_UP:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, 0.1f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_LEFT:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.1f, 0.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_DOWN:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, -0.1f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_RIGHT:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(-0.1f, 0.0f, 0.0f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			// Skalierung
 			case SDLK_r:
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(1.1f, 1.1f, 1.1f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_f:
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.914f, 0.914f, 0.914f));
-				ourShader.setTransform("transform", transform_matrix);
+				ourShader.setMat4("transform", transform_matrix);
 				break;
 			//Kamera (�ber Numpad-Pfeile steuerbar)
 			case SDLK_w:
@@ -337,6 +337,22 @@ int main(int argc, char** argv) {
 
 	Model ourModel("resources/objects/backpack/backpack.obj");
 
+	// Instancing
+	glm::mat4 translations[9];
+	int index = 0;
+	float offset = 5.0f;
+	for (int z = 0; z < 3; z++) {
+		for (int x = 0; x < 3; x++) {
+			glm::mat4 translation = glm::mat4(1.0f);
+			glm::vec3 displace;
+			displace.x = x * offset;
+			displace.y = 0.0f;
+			displace.z = z * offset;
+			translation = glm::translate(translation, displace);
+			translations[index++] = translation;
+		}
+	}
+
 	while (!quit) {
 
 		// Events
@@ -350,9 +366,9 @@ int main(int argc, char** argv) {
 
 		projection_matrix = glm::perspective(glm::radians(camera.Zoom_), ScreenWidth/ScreenHeight, 0.1f, 100.0f);
 		ourShader.use();
-		ourShader.setTransform("transform", transform_matrix);
+		ourShader.setMat4("transform", transform_matrix);
 		ourShader.setProjection("projection", projection_matrix);
-		ourShader.setView("view", camera.getViewMatrix());
+		ourShader.setMat4("view", camera.getViewMatrix());
 		ourShader.setVec3("cameraPos", camera.getPosition());
 		ourShader.setVec3("light.position", glm::vec3(0.0f, 50.0f, 0.0f));
 		ourShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -367,13 +383,17 @@ int main(int argc, char** argv) {
 		// Rendering
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		ourModel.Draw(ourShader);
+		for (unsigned int i = 0; i < 9; i++)
+		{
+			ourShader.setMat4("transform", translations[i]);
+			ourModel.Draw(ourShader);
+		}
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
 		skyboxShader.use();
 		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
-		skyboxShader.setView("view",view);
+		skyboxShader.setMat4("view",view);
 		skyboxShader.setProjection("projection", projection_matrix);
 
 		glBindVertexArray(skyboxVAO);

@@ -82,14 +82,6 @@ class Shader {
 			glDeleteProgram(ID_);
 		}
 
-		void setTransform(std::string name, glm::mat4 matrix) {
-			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
-		}
-
-		void setView(std::string name, glm::mat4 matrix) {
-			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
-		}
-
 		void setInt(std::string name, int value) {
 			glUniform1i(glGetUniformLocation(ID_, name.c_str()), value);
 		}
@@ -100,6 +92,10 @@ class Shader {
 
 		void setVec3(std::string name, glm::vec3 value) {
 			glUniform3fv(glGetUniformLocation(ID_, name.c_str()), 1, &value[0]);
+		}
+
+		void setMat4(std::string name, glm::mat4 matrix) {
+			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
 		void setProjection(std::string name, glm::mat4 matrix) {
