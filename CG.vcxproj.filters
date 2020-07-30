@@ -49,7 +49,7 @@
     <Text Include="skybox_vertex.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
-    <Text Include="Fragment.fs">
+    <Text Include="Fragment.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
   </ItemGroup>

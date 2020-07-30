@@ -341,7 +341,7 @@ int main(int argc, char** argv) {
 		 50.0f, -50.0f,  50.0f
 	};
 
-	ourShader = Shader("Vertex.txt", "Fragment.fs");
+	ourShader = Shader("Vertex.txt", "Fragment.txt");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Texturen
