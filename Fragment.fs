@@ -39,6 +39,7 @@ uniform Light light;
 uniform SpotLight spotLights[SPOTLIGHT_COUNT];
 uniform Material material;
 uniform vec3 cameraPos;
+uniform sampler2D ourTexture;
 uniform samplerCube skybox;
 
 // function prototypes
@@ -78,9 +79,9 @@ vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord));
+    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord)) * material.ambient;
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_diffuse1, TexCoord));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoord));
     
     return (ambient + diffuse + specular);
 }
@@ -104,9 +105,9 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord));
+    vec3 ambient = light.ambient * vec3(texture(ourTexture, TexCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoord));
-    vec3 specular = light.specular * spec * vec3(texture(material.texture_diffuse1, TexCoord));
+    vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoord));
     ambient *=  intensity;
     diffuse *=  intensity;
     specular *= intensity;

@@ -348,6 +348,7 @@ int main(int argc, char** argv) {
 	
 	ourShader.use();
 	ourShader.setInt("skybox", 0);
+	ourShader.setInt("ourTexture", 1);
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
@@ -483,7 +484,7 @@ int main(int argc, char** argv) {
 				}
 			}
 		}
-		
+
 		// set lightning for right side of buildung
 		for (int i = -15; i < 18; i++) {
 			std::ostringstream spotlightBase;
