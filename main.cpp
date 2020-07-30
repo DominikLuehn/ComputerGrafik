@@ -396,7 +396,7 @@ int main(int argc, char** argv) {
 	// Render Loop
 	bool quit = false;
 
-	//Model ourModel("resources/objects/backpack/backpack.obj");
+	Model ourModel("resources/objects/backpack/backpack.obj");
 
 	while (!quit) {
 
@@ -427,11 +427,11 @@ int main(int argc, char** argv) {
 
 		// Rendering
 		glBindVertexArray(VAO);
-		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE0);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
 		glBindVertexArray(0);
-		//ourModel.Draw(ourShader);
+		ourModel.Draw(ourShader);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
@@ -441,8 +441,8 @@ int main(int argc, char** argv) {
 		skyboxShader.setProjection("projection", projection_matrix);
 
 		glBindVertexArray(skyboxVAO);
-		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glActiveTexture(GL_TEXTURE0);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS);
@@ -452,9 +452,9 @@ int main(int argc, char** argv) {
 		SDL_GL_SwapWindow(window);
 	}
 
-	//glDeleteVertexArrays(1, &VAO);
+	glDeleteVertexArrays(1, &VAO);
 	glDeleteVertexArrays(1, &skyboxVAO);
-	//glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &skyboxVBO);
 	ourShader.erase();
 	skyboxShader.erase();
