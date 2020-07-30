@@ -43,13 +43,13 @@
     <Text Include="Vertex.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
-    <Text Include="Fragment.txt">
-      <Filter>Ressourcendateien</Filter>
-    </Text>
     <Text Include="skybox_fragment.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
     <Text Include="skybox_vertex.txt">
+      <Filter>Ressourcendateien</Filter>
+    </Text>
+    <Text Include="Fragment.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
   </ItemGroup>
