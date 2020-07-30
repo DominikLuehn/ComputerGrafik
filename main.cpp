@@ -20,7 +20,7 @@ const float ScreenWidth = 1280;
 const float ScreenHeight = 720;
 
 // camera
-Camera camera(glm::vec3(-10.0f, 10.0f, -3.0f));
+Camera camera(glm::vec3(-21.4649982f, 12.9599619f, 23.56644207f));
 float lastX = ScreenWidth / 2.0f;
 float lastY = ScreenHeight / 2.0f;
 
@@ -98,6 +98,9 @@ void eventHandler(bool* quit) {
 			case SDLK_r:
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(1.1f, 1.1f, 1.1f));
 				ourShader.setTransform("transform", transform_matrix);
+				break;
+			case SDLK_c:
+				glm::vec3 meinePos = camera.Position_;
 				break;
 			case SDLK_f:
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.914f, 0.914f, 0.914f));
@@ -322,7 +325,7 @@ int main(int argc, char** argv) {
 		 50.0f, -50.0f,  50.0f
 	};
 
-	ourShader = Shader("Vertex.txt", "Fragment.txt");
+	ourShader = Shader("Vertex.txt", "Fragment.fs");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Texturen
@@ -447,12 +450,92 @@ int main(int argc, char** argv) {
 		ourShader.setFloat("material.shininess", 1000.0f);
 
 		// Set spotlight
+		// Set position and direction
+		ourShader.setVec3("spotLights[0].position", glm::vec3(-15, 8.33154964f, 9.46781199f));
+		ourShader.setVec3("spotLights[0].direction", glm::vec3(0.0f, -1.0f, -0.25f));
+		ourShader.setVec3("spotLights[0].diffuse", glm::vec3(0.0f, 0.0f, 0.5f));
+		ourShader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		ourShader.setVec3("spotLights[0].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+		ourShader.setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
+		ourShader.setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
 
-		ourShader.setVec3("spotlight.position", glm::vec3(0.0f, 20.0f, 0.5f));
-		ourShader.setVec3("spotlight.direction", glm::vec3(0.0f, -1.0f, 0.5f));
-		ourShader.setVec3("spotlight.color", glm::vec3(0.0f, 0.0f, 1.0f));
-		ourShader.setFloat("spotlight.cutOff", glm::cos(glm::radians(12.5f)));
-		ourShader.setFloat("spotlight.outerCutOff", glm::cos(glm::radians(17.5f)));
+		ourShader.setVec3("spotLights[1].position", glm::vec3(-14, 8.33154964f, 9.46781199f));
+		ourShader.setVec3("spotLights[1].direction", glm::vec3(0.0f, -1.0f, -0.25f));
+		ourShader.setVec3("spotLights[1].diffuse", glm::vec3(0.0f, 0.0f, 0.5f));
+		ourShader.setVec3("spotLights[1].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		ourShader.setVec3("spotLights[1].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+		ourShader.setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
+		ourShader.setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(17.5f)));
+		
+		// set lightning for right side of buildung
+		for (int i = -15; i < 18; i++) {
+			std::ostringstream spotlightBase;
+			spotlightBase << "spotLights["<< 15 + i;
+
+			std::ostringstream spotlightPos;
+			spotlightPos << spotlightBase.str() << "].position";
+			ourShader.setVec3(spotlightPos.str(), glm::vec3(i, 8.33154964f, 9.46781199f));
+
+
+			std::ostringstream spotlightDir;
+			spotlightDir << spotlightBase.str() << "].direction";
+			ourShader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, -0.25f));
+			
+			std::ostringstream spotlightDif;
+			spotlightDif << spotlightBase.str() << "].diffuse";
+			ourShader.setVec3(spotlightDif.str() , glm::vec3(0.0f, 0.0f, 0.5f));
+			
+			std::ostringstream spotlightSpec;
+			spotlightSpec<< spotlightBase.str() << "].specular";
+			ourShader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::ostringstream spotlightAmbient;
+			spotlightAmbient << spotlightBase.str();
+			ourShader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
+
+			std::ostringstream spotlightCutOff;
+			spotlightCutOff << spotlightBase.str() << "].cutOff";
+			ourShader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
+
+			std::ostringstream spotlightOuterCutOff;
+			spotlightOuterCutOff << spotlightBase.str() << "].outerCutOff";
+			ourShader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
+		}
+		
+		// set lightning for left side to building
+		for (int i = 18; i < 51; i++) {
+			std::ostringstream spotlightBase;
+			spotlightBase << "spotLights[" << 15 + i;
+
+			std::ostringstream spotlightPos;
+			spotlightPos << spotlightBase.str() << "].position";
+			ourShader.setVec3(spotlightPos.str(), glm::vec3(i - 33, 8.33154964f, -7.4f));
+
+
+			std::ostringstream spotlightDir;
+			spotlightDir << spotlightBase.str() << "].direction";
+			ourShader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, 0.25f));
+
+			std::ostringstream spotlightDif;
+			spotlightDif << spotlightBase.str() << "].diffuse";
+			ourShader.setVec3(spotlightDif.str(), glm::vec3(0.0f, 0.0f, 0.5f));
+
+			std::ostringstream spotlightSpec;
+			spotlightSpec << spotlightBase.str() << "].specular";
+			ourShader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
+			std::ostringstream spotlightAmbient;
+			spotlightAmbient << spotlightBase.str();
+			ourShader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
+
+			std::ostringstream spotlightCutOff;
+			spotlightCutOff << spotlightBase.str() << "].cutOff";
+			ourShader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
+
+			std::ostringstream spotlightOuterCutOff;
+			spotlightOuterCutOff << spotlightBase.str() << "].outerCutOff";
+			ourShader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
+		}
 
 		// Rendering
 		glBindVertexArray(VAO);

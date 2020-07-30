@@ -159,7 +159,7 @@
     <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Fragment.txt" />
+    <Text Include="Fragment.fs" />
     <Text Include="skybox_fragment.txt" />
     <Text Include="skybox_vertex.txt" />
     <Text Include="Vertex.txt" />
