@@ -19,6 +19,14 @@
 const float ScreenWidth = 1280;
 const float ScreenHeight = 720;
 
+enum CHANGECOLOR {
+	BLUE = 0,
+	RED,
+	GREEN,
+	BUNT
+};
+glm::vec3 currentColor = glm::vec3(0.0f, 0.0f, 0.5f);
+CHANGECOLOR changeColor = BLUE;
 // camera
 Camera camera(glm::vec3(-21.4649982f, 12.9599619f, 23.56644207f));
 float lastX = ScreenWidth / 2.0f;
@@ -96,8 +104,16 @@ void eventHandler(bool* quit) {
 				break;
 			// Skalierung
 			case SDLK_r:
-				transform_matrix = glm::scale(transform_matrix, glm::vec3(1.1f, 1.1f, 1.1f));
-				ourShader.setTransform("transform", transform_matrix);
+				changeColor = RED;
+				break;
+			case SDLK_g:
+				changeColor = GREEN;
+				break;
+			case SDLK_b:
+				changeColor = BLUE;
+				break;
+			case SDLK_x:
+				changeColor = BUNT;
 				break;
 			case SDLK_c:
 				glm::vec3 meinePos = camera.Position_;
@@ -449,23 +465,89 @@ int main(int argc, char** argv) {
 		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
 		ourShader.setFloat("material.shininess", 1000.0f);
 
-		// Set spotlight
-		// Set position and direction
-		ourShader.setVec3("spotLights[0].position", glm::vec3(-15, 8.33154964f, 9.46781199f));
-		ourShader.setVec3("spotLights[0].direction", glm::vec3(0.0f, -1.0f, -0.25f));
-		ourShader.setVec3("spotLights[0].diffuse", glm::vec3(0.0f, 0.0f, 0.5f));
-		ourShader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		ourShader.setVec3("spotLights[0].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-		ourShader.setFloat("spotLights[0].cutOff", glm::cos(glm::radians(12.5f)));
-		ourShader.setFloat("spotLights[0].outerCutOff", glm::cos(glm::radians(17.5f)));
 
-		ourShader.setVec3("spotLights[1].position", glm::vec3(-14, 8.33154964f, 9.46781199f));
-		ourShader.setVec3("spotLights[1].direction", glm::vec3(0.0f, -1.0f, -0.25f));
-		ourShader.setVec3("spotLights[1].diffuse", glm::vec3(0.0f, 0.0f, 0.5f));
-		ourShader.setVec3("spotLights[1].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		ourShader.setVec3("spotLights[1].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-		ourShader.setFloat("spotLights[1].cutOff", glm::cos(glm::radians(12.5f)));
-		ourShader.setFloat("spotLights[1].outerCutOff", glm::cos(glm::radians(17.5f)));
+		// Shift color more to blue if neccessary
+		if (changeColor == BLUE && (currentColor.x != 0.0f || currentColor.y != 0.0f || currentColor.z != 0.5f)) {
+			if (currentColor.x != 0.0f) {
+				if (currentColor.x < 0.0f) {
+					currentColor.x += 0.001f;
+				} else if  (currentColor.x > 0.0f) {
+					currentColor.x -= 0.001f;
+				}
+			}
+			if (currentColor.y != 0.0f) {
+				if (currentColor.y < 0.0f) {
+					currentColor.y += 0.001f;
+				}
+				else if (currentColor.y > 0.0f) {
+					currentColor.y -= 0.001f;
+				}
+			}
+			if (currentColor.z != 0.5f) {
+				if (currentColor.z < 0.5f) {
+					currentColor.z += 0.001f;
+				}
+				else if (currentColor.z > 0.5f) {
+					currentColor.z -= 0.001f;
+				}
+			}
+		}
+
+		// Shift color more to red if neccessary
+		if (changeColor == RED && (currentColor.x != 0.5f || currentColor.y != 0.0f || currentColor.z != 0.0f)) {
+			if (currentColor.x != 0.5f) {
+				if (currentColor.x < 0.5f) {
+					currentColor.x += 0.001f;
+				}
+				else if (currentColor.x > 0.5f) {
+					currentColor.x -= 0.001f;
+				}
+			}
+			if (currentColor.y != 0.0f) {
+				if (currentColor.y < 0.0f) {
+					currentColor.y += 0.001f;
+				}
+				else if (currentColor.y > 0.0f) {
+					currentColor.y -= 0.001f;
+				}
+			}
+			if (currentColor.z != 0.0f) {
+				if (currentColor.z < 0.0f) {
+					currentColor.z += 0.001f;
+				}
+				else if (currentColor.z > 0.0f) {
+					currentColor.z -= 0.001f;
+				}
+			}
+		}
+
+		// Shift color more to green if neccessary
+		if (changeColor == GREEN && (currentColor.x != 0.0f || currentColor.y != 0.5f || currentColor.z != 0.0f)) {
+			if (currentColor.x != 0.0f) {
+				if (currentColor.x < 0.0f) {
+					currentColor.x += 0.001f;
+				}
+				else if (currentColor.x > 0.0f) {
+					currentColor.x -= 0.001f;
+				}
+			}
+			if (currentColor.y != 0.5f) {
+				if (currentColor.y < 0.5f) {
+					currentColor.y += 0.001f;
+				}
+				else if (currentColor.y > 0.5f) {
+					currentColor.y -= 0.001f;
+				}
+			}
+			if (currentColor.z != 0.0f) {
+				if (currentColor.z < 0.0f) {
+					currentColor.z += 0.001f;
+				}
+				else if (currentColor.z > 0.0f) {
+					currentColor.z -= 0.001f;
+				}
+			}
+		}
 		
 		// set lightning for right side of buildung
 		for (int i = -15; i < 18; i++) {
@@ -481,9 +563,17 @@ int main(int argc, char** argv) {
 			spotlightDir << spotlightBase.str() << "].direction";
 			ourShader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, -0.25f));
 			
+			if (changeColor == BUNT) {
+				switch ((i+15) % 3) {
+				case 0: currentColor = glm::vec3(0.5f, 0.0f, 0.0f); break;
+				case 1: currentColor = glm::vec3(0.0f, 0.5f, 0.0f); break;
+				case 2: currentColor = glm::vec3(0.0f, 0.0f, 0.5f); break;
+				}
+			}
+
 			std::ostringstream spotlightDif;
 			spotlightDif << spotlightBase.str() << "].diffuse";
-			ourShader.setVec3(spotlightDif.str() , glm::vec3(0.0f, 0.0f, 0.5f));
+			ourShader.setVec3(spotlightDif.str() , currentColor);
 			
 			std::ostringstream spotlightSpec;
 			spotlightSpec<< spotlightBase.str() << "].specular";
@@ -516,9 +606,17 @@ int main(int argc, char** argv) {
 			spotlightDir << spotlightBase.str() << "].direction";
 			ourShader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, 0.25f));
 
+			if (changeColor == BUNT) {
+				switch (i % 3) {
+				case 0: currentColor = glm::vec3(0.5f, 0.0f, 0.0f); break;
+				case 1: currentColor = glm::vec3(0.0f, 0.5f, 0.0f); break;
+				case 2: currentColor = glm::vec3(0.0f, 0.0f, 0.5f); break;
+				}
+			}
+
 			std::ostringstream spotlightDif;
 			spotlightDif << spotlightBase.str() << "].diffuse";
-			ourShader.setVec3(spotlightDif.str(), glm::vec3(0.0f, 0.0f, 0.5f));
+			ourShader.setVec3(spotlightDif.str(), currentColor);
 
 			std::ostringstream spotlightSpec;
 			spotlightSpec << spotlightBase.str() << "].specular";
