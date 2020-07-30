@@ -20,7 +20,7 @@ const float ScreenWidth = 1280;
 const float ScreenHeight = 720;
 
 // camera
-Camera camera(glm::vec3(-10.0f, 10.0f, -3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
 float lastX = ScreenWidth / 2.0f;
 float lastY = ScreenHeight / 2.0f;
 
@@ -254,29 +254,6 @@ int main(int argc, char** argv) {
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
-	float vertices[]{
-		// Position			|	Farbe			   |	Normalen				| Texturekoordinaten
-		// erstes Dreieck
-	/*0*/ -0.6f, -0.6f,  0.39f,	1.0f,  0.0f,  0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 
-	/*1*/  0.6f, -0.6f,  0.39f,	0.0f,  1.0f,  0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,  
-	/*2*/  0.0f, -0.6f, -0.78f,	0.0f,  0.0f,  1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
-
-		 // zweites Dreieck
-	/*1*/  0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f, 
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
-
-		// drittes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f,
-	/*1*/  0.6f, -0.6f, 0.39f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.6f, -0.6f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f,  
-
-		// viertes Dreieck
-	/*0*/ -0.6f, -0.6f, 0.39f,	1.0f, 0.0f, 0.0f,		0.0f,  0.0f,  0.0f,		-0.6f, -0.6f, 
-	/*2*/  0.0f, -0.6f,-0.78f,	0.0f, 1.0f, 0.0f,		0.0f,  0.0f,  0.0f,		 0.0f, -0.6f,
-	/*3*/  0.0f,  0.6f,  0.0f,	0.0f, 0.0f, 1.0f,		0.0f,  0.0f,  0.0f,		 0.0f,  0.6f
-	};
-
 	float skyboxVertices[] = {
 		// Position          
 		-50.0f,  50.0f, -50.0f,
@@ -325,67 +302,11 @@ int main(int argc, char** argv) {
 	ourShader = Shader("Vertex.txt", "Fragment.txt");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
-	// Texturen
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	// Set texture wrapping options
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// Set texture filtering options 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Load Image
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load("moneyprintergobrrr.jpg", &width, &height, &nrChannels, 0);
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load texture!" << std::endl;
-	}
-	stbi_image_free(data);
-
-	// Normalen berechnen
-	int size = sizeof(vertices) / (sizeof(float) * 33); // 36 Floats pro Dreieck
-	calcNormals(vertices, size, 33, 11);
-
-	// VAO, VBO erstellen
-	GLuint VBO, VAO;
-	
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-
-	// VAO, VBO, IBO binden/aktivieren
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-	// VBO füllen
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Vertex Positionen einem Array-Index zuordnen
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	// Farbwerte
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// Normalen
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	// Texturen
-	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(GLfloat), (void*)(9 * sizeof(float)));
-	glEnableVertexAttribArray(3);
-
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
 	transform_matrix = glm::mat4(1.0f);
 	view_matrix = glm::mat4(1.0f);
 	projection_matrix = glm::mat4(1.0f);
 
-	// --------------------------------------------------------------------------------------------------
 	// Skybox
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -405,11 +326,9 @@ int main(int argc, char** argv) {
 		"resources/skybox/back.jpg"
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
-
 	
 	ourShader.use();
 	ourShader.setInt("skybox", 0);
-	ourShader.setInt("ourTexture", 1);
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
@@ -443,14 +362,11 @@ int main(int argc, char** argv) {
 		ourShader.setVec3("material.ambient", glm::vec3(1.0f, 0.5f, 0.31f));
 		ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 0.5f, 0.31f));
 		ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-		ourShader.setFloat("material.shininess", 1000.0f);
+		ourShader.setFloat("material.shininess", 1.0f);
 
 		// Rendering
-		glBindVertexArray(VAO);
-		glBindTexture(GL_TEXTURE_2D, texture);
 		glActiveTexture(GL_TEXTURE0);
-		glDrawArrays(GL_TRIANGLES, 0, 12);
-		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		ourModel.Draw(ourShader);
 
 		// Skybox
@@ -472,9 +388,7 @@ int main(int argc, char** argv) {
 		SDL_GL_SwapWindow(window);
 	}
 
-	glDeleteVertexArrays(1, &VAO);
 	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &skyboxVBO);
 	ourShader.erase();
 	skyboxShader.erase();

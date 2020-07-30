@@ -28,7 +28,7 @@ class Mesh {
 		std::vector<unsigned int>	indices;
 		std::vector<Texture>		textures;
 
-		Mesh(std::vector<Vertex> &vertices, std::vector<unsigned int> &indices, std::vector<Texture> &textures) {
+		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) {
 			this->vertices = vertices;
 			this->indices = indices;
 			this->textures = textures;
@@ -39,7 +39,6 @@ class Mesh {
 		void Draw(Shader& shader) {
 			unsigned int diffuseNr = 1;
 			unsigned int specularNr = 1;
-			unsigned int normalNr = 1;
 			for (unsigned int i = 0; i < textures.size(); i++) {
 				glActiveTexture(GL_TEXTURE0 + i);
 
@@ -49,18 +48,18 @@ class Mesh {
 					number = std::to_string(diffuseNr++);
 				} else if (name == "texture_specular") {
 					number = std::to_string(specularNr++);
-				} else if (name == "texture_normal") {
-					number = std::to_string(normalNr++);
 				}
+
 				shader.setFloat(("material." + name + number).c_str(), i);
 				glBindTexture(GL_TEXTURE_2D, textures[i].ID);
 			}
-			glActiveTexture(GL_TEXTURE0);
 
 			// Mesh zeichnen
 			glBindVertexArray(VAO);
 			glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);
+
+			glActiveTexture(GL_TEXTURE0);
 		}
 	
 	private:

@@ -108,7 +108,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\dev\Studium\CG\dependencies\assimp\lib;$(SolutionDir)\dependencies\SDL2-2.0.12\lib\x64;$(SolutionDir)\dependencies\glew-2.1.0\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/dependencies/SDL2-2.0.12/lib/x64/;$(SolutionDir)/dependencies/assimp/lib/;$(SolutionDir)/dependencies/glew-2.1.0/lib/Release/x64/</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc142-mtd.lib;SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -143,7 +143,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)\dependencies\assimp\lib;$(SolutionDir)\dependencies\glew-2.1.0\lib\Release\x64;$(SolutionDir)\dependencies\SDL2-2.0.12\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)/dependencies/SDL2-2.0.12/lib/x64/;$(SolutionDir)/dependencies/assimp/lib/;$(SolutionDir)/dependencies/glew-2.1.0/lib/Release/x64/</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc142-mtd.lib;SDL2.lib;SDL2main.lib;opengl32.lib;glew32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
