@@ -4,6 +4,7 @@
 #include <vector>
 #include <ctime>
 
+#include "windows.h"
 #include "Model.h"
 #include "Shader.h"
 #include "Camera.h"
@@ -19,7 +20,7 @@ const float ScreenWidth = 1280;
 const float ScreenHeight = 720;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, -3.0f));
+Camera camera(glm::vec3(-10.0f, 10.0f, -3.0f));
 float lastX = ScreenWidth / 2.0f;
 float lastY = ScreenHeight / 2.0f;
 
@@ -102,7 +103,7 @@ void eventHandler(bool* quit) {
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.914f, 0.914f, 0.914f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			//Kamera (über Numpad-Pfeile steuerbar)
+			//Kamera (ï¿½ber Numpad-Pfeile steuerbar)
 			case SDLK_w:
 				camera.ProcessKeyBoard(FORWARD);
 				break;
@@ -143,8 +144,8 @@ void calcNormals(float vertices[], int size, int floats_per_triangle, int floats
 
 	// Wert der Normalen setzen
 	int offset = 6;
-	for (int i = 0; i < normals.size(); i++) { // für jedes Dreieck
-		for (int c = 0; c < 3; c++) { // jede Normale pro Dreieck für jeden Vertex
+	for (int i = 0; i < normals.size(); i++) { // fï¿½r jedes Dreieck
+		for (int c = 0; c < 3; c++) { // jede Normale pro Dreieck fï¿½r jeden Vertex
 			vertices[c * floats_per_vertex + i * floats_per_triangle + offset] = normals.at(i).x;
 			vertices[c * floats_per_vertex + i * floats_per_triangle + offset + 1] = normals.at(i).y;
 			vertices[c * floats_per_vertex + i * floats_per_triangle + offset + 2] = normals.at(i).z;
@@ -214,6 +215,25 @@ unsigned int loadTexture(char const* path) {
 	}
 
 	return textureID;
+}
+
+void fps()
+{
+	static int fps = 0;
+	static float before = 0.0f;
+	static char strFPS[20] = { 0 };
+	static float now = (GetTickCount() * 0.001f);
+
+	++fps;
+
+	if ((now - before) > 1.0f)
+	{
+		before = now;
+		sprintf_s(strFPS, "FPS: %c", int(fps));
+		SDL_SetWindowTitle(window, strFPS);
+		fps = 0;
+		
+	}
 }
 
 int main(int argc, char** argv) {
@@ -341,7 +361,7 @@ int main(int argc, char** argv) {
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-	// VBO füllen
+	// VBO fÃ¼llen
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 	// Vertex Positionen einem Array-Index zuordnen
@@ -402,7 +422,7 @@ int main(int argc, char** argv) {
 
 		// Events
 		eventHandler(&quit);
-		
+		fps();
 		// leere Fenster
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
