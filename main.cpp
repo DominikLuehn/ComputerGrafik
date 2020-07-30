@@ -318,7 +318,7 @@ int main(int argc, char** argv) {
 		 50.0f, -50.0f,  50.0f
 	};
 
-	ourShader = Shader("Vertex.txt", "Fragment.txt");
+	ourShader = Shader("Vertex.txt", "Fragment.fs");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
@@ -354,23 +354,24 @@ int main(int argc, char** argv) {
 	// Render Loop
 	bool quit = false;
 
-	Model ourModel("resources/objects/backpack/backpack.obj");
+	Model ourModel("resources/objects/tobitlabs.obj");
+	Model boden("resources/objects/boden.obj");
 
 	// Instancing
-	glm::mat4 translations[9];
-	int index = 0;
-	float offset = 5.0f;
-	for (int z = 0; z < 3; z++) {
-		for (int x = 0; x < 3; x++) {
-			glm::mat4 translation = glm::mat4(1.0f);
-			glm::vec3 displace;
-			displace.x = x * offset;
-			displace.y = 0.0f;
-			displace.z = z * offset;
-			translation = glm::translate(translation, displace);
-			translations[index++] = translation;
-		}
-	}
+	//glm::mat4 translations[9];
+	//int index = 0;
+	//float offset = 5.0f;
+	//for (int z = 0; z < 3; z++) {
+	//	for (int x = 0; x < 3; x++) {
+	//		glm::mat4 translation = glm::mat4(1.0f);
+	//		glm::vec3 displace;
+	//		displace.x = x * offset;
+	//		displace.y = 0.0f;
+	//		displace.z = z * offset;
+	//		translation = glm::translate(translation, displace);
+	//		translations[index++] = translation;
+	//	}
+	//}
 
 	while (!quit) {
 
@@ -572,11 +573,12 @@ int main(int argc, char** argv) {
 		// Rendering
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		for (unsigned int i = 0; i < 9; i++)
-		{
-			ourShader.setMat4("transform", translations[i]);
+		//for (unsigned int i = 0; i < 9; i++)
+		//{
+		//	ourShader.setMat4("transform", translations[i]);
 			ourModel.Draw(ourShader);
-		}
+			boden.Draw(ourShader);
+//		}
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
