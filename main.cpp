@@ -25,7 +25,7 @@ enum CHANGECOLOR {
 	GREEN,
 	BUNT
 };
-glm::vec3 currentColor = glm::vec3(0.0f, 0.0f, 0.5f);
+glm::vec3 currentColor = glm::vec3(0.0f, 0.0f,5.5f);
 CHANGECOLOR changeColor = BLUE;
 // camera
 Camera camera(glm::vec3(-21.4649982f, 12.9599619f, 23.56644207f));
@@ -122,7 +122,7 @@ void eventHandler(bool* quit) {
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.914f, 0.914f, 0.914f));
 				ourShader.setTransform("transform", transform_matrix);
 				break;
-			//Kamera (�ber Numpad-Pfeile steuerbar)
+			//Kamera (ueber Numpad-Pfeile steuerbar)
 			case SDLK_w:
 				camera.ProcessKeyBoard(FORWARD);
 				break;
@@ -435,7 +435,7 @@ int main(int argc, char** argv) {
 	// Render Loop
 	bool quit = false;
 
-	Model ourModel("resources/objects/tobitlabs.obj");
+	Model ourModel("resources/objects/Haus.obj");
 	Model model2("resources/objects/boden.obj");
 	int sinWert = 0.0;
 	while (!quit) {
@@ -636,11 +636,11 @@ int main(int argc, char** argv) {
 		}
 
 		// Rendering
-		glBindVertexArray(VAO);
-		glActiveTexture(GL_TEXTURE1);
+		/*glBindVertexArray(VAO);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glDrawArrays(GL_TRIANGLES, 0, 12);
-		glBindVertexArray(0);
+		glBindVertexArray(0);*/
 		ourModel.Draw(ourShader);
 		model2.Draw(ourShader);
 
