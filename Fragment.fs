@@ -9,7 +9,7 @@ struct Material {
 	float shininess;
 };
 
-struct Light {
+struct DirLight {
     vec3 direction;
 
     vec3 ambient;
@@ -22,6 +22,11 @@ struct SpotLight {
     vec3  direction;
     float cutOff;
     float outerCutOff;
+
+    float constant;
+    float linear;
+    float quadratic;
+
     vec3 ambient;
     vec3 specular;
     vec3 diffuse;
@@ -35,49 +40,44 @@ in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
 
-uniform bool dirlight;
-uniform bool spotlight;
+uniform bool dir_light;
+uniform bool spot_light;
 uniform bool skybox_bool;
 
 uniform float factor;
-uniform Light light;
+uniform DirLight light;
 uniform SpotLight spotLights[SPOTLIGHT_COUNT];
 uniform Material material;
 uniform vec3 cameraPos;
 uniform samplerCube skybox;
 
 // function prototypes
-vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir);
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir);
 
 void main(){
     // properties
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(cameraPos - Position);
 
-    // Enviroment Mapping
-    vec3 I = normalize(Position - cameraPos);
-    vec3 R = reflect(I, norm);
-    
-    // == =====================================================
-    // Our lighting is set up in 3 phases: directional, point lights and an optional flashlight
-    // For each phase, a calculate function is defined that calculates the corresponding color
-    // per lamp. In the main() function we take all the calculated colors and sum them up for
-    // this fragment's final color.
-    // == =====================================================
-    // phase 1: directional lighting
+    // directional lighting
     vec3 result = vec3(0.0);
-    if(dirlight){
+    if(dir_light){
         result = CalcDirLight(light, norm, viewDir);
     }
 
-    // phase 2: point lights
-    if(spotlight){
+    // point lights
+    if(spot_light){
         for(int i = 0; i < SPOTLIGHT_COUNT; i++) {
-            result += CalcSpotLight(spotLights[i], norm, Position, viewDir);  
+            result += CalcSpotLight(spotLights[i], norm, viewDir);  
         }
     }
     
+    // Enviroment Mapping - Skybox
+    vec3 I = normalize(Position - cameraPos);
+    vec3 R = reflect(I, norm);
+
+    // skybox
     if(skybox_bool){
         FragColor = (factor * vec4(texture(skybox, R).rgb, 1.0)) + ((1.0 - factor) * vec4(result, 1.0));
     } else {
@@ -86,7 +86,7 @@ void main(){
 }
 
 // calculates the color when using a directional light.
-vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir)
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
    
@@ -98,7 +98,7 @@ vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir)
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord)) * material.ambient;
+    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoord));
     
@@ -107,7 +107,7 @@ vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir)
 
 
 // calculates the color when using a spot light.
-vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - Position);
     
@@ -118,6 +118,10 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     
+    // attenuation
+    float distance = length(light.position - Position);
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+
     // spotlight intensity
     float theta = dot(lightDir, normalize(-light.direction)); 
     float epsilon = light.cutOff - light.outerCutOff;
@@ -127,9 +131,9 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoord));
-    ambient *=  intensity;
-    diffuse *=  intensity;
-    specular *= intensity;
+    ambient *= attenuation * intensity;
+    diffuse *= attenuation * intensity;
+    specular *= attenuation * intensity;
 
     return (ambient + diffuse + specular);
 }

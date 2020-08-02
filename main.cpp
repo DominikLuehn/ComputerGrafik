@@ -69,7 +69,7 @@ void eventHandler(bool* quit) {
 			case SDLK_F1:
 				dirlight = !dirlight;
 				shader.use();
-				shader.setInt("dirlight", dirlight);
+				shader.setInt("dir_light", dirlight);
 				std::cout << "DirLight: " << std::to_string(dirlight) << "\nSkybox: " << std::to_string(skybox) << "\nSpotlights: " << std::to_string(spotlight) << std::endl;
 				break;
 			case SDLK_F2:
@@ -81,7 +81,7 @@ void eventHandler(bool* quit) {
 			case SDLK_F3:
 				spotlight = !spotlight;
 				shader.use();
-				shader.setInt("spotlight", spotlight);
+				shader.setInt("spot_light", spotlight);
 				std::cout << "DirLight: " << std::to_string(dirlight) << "\nSkybox: " << std::to_string(skybox) << "\nSpotlights: " << std::to_string(spotlight) << std::endl;
 				break;
 			// Rotation
@@ -343,61 +343,8 @@ void lighting() {
 
 	// set lightning for right side of buildung
 	for (int i = -15; i < 18; i++) {
-		std::ostringstream spotlightBase;
-		spotlightBase << "spotLights[" << 15 + i;
-
-		std::ostringstream spotlightPos;
-		spotlightPos << spotlightBase.str() << "].position";
-		shader.setVec3(spotlightPos.str(), glm::vec3(i, 8.33154964f, 9.46781199f));
-
-
-		std::ostringstream spotlightDir;
-		spotlightDir << spotlightBase.str() << "].direction";
-		shader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, -0.25f));
-
-		if (changeColor == BUNT) {
-			switch ((i + 15) % 3) {
-			case 0: currentColor = glm::vec3(0.5f, 0.0f, 0.0f); break;
-			case 1: currentColor = glm::vec3(0.0f, 0.5f, 0.0f); break;
-			case 2: currentColor = glm::vec3(0.0f, 0.0f, 0.5f); break;
-			}
-		}
-
-		std::ostringstream spotlightDif;
-		spotlightDif << spotlightBase.str() << "].diffuse";
-		shader.setVec3(spotlightDif.str(), currentColor);
-
-		std::ostringstream spotlightSpec;
-		spotlightSpec << spotlightBase.str() << "].specular";
-		int count = 15 + i;
-		shader.setVec3("spotLights[" + std::to_string(count) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-
-		std::ostringstream spotlightAmbient;
-		spotlightAmbient << spotlightBase.str();
-		shader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
-
-		std::ostringstream spotlightCutOff;
-		spotlightCutOff << spotlightBase.str() << "].cutOff";
-		shader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
-
-		std::ostringstream spotlightOuterCutOff;
-		spotlightOuterCutOff << spotlightBase.str() << "].outerCutOff";
-		shader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
-	}
-
-	// set lightning for left side to building
-	for (int i = 18; i < 51; i++) {
-		std::ostringstream spotlightBase;
-		spotlightBase << "spotLights[" << 15 + i;
-
-		std::ostringstream spotlightPos;
-		spotlightPos << spotlightBase.str() << "].position";
-		shader.setVec3(spotlightPos.str(), glm::vec3(i - 33, 8.33154964f, -7.4f));
-
-
-		std::ostringstream spotlightDir;
-		spotlightDir << spotlightBase.str() << "].direction";
-		shader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, 0.25f));
+		shader.setVec3("spotLights[" + std::to_string(i) + "].position", glm::vec3(i - 33, 8.33154964f, -7.4f));
+		shader.setVec3("spotLights[" + std::to_string(i) + "].direction", glm::vec3(0.0f, -1.0f, 0.25f));
 
 		if (changeColor == BUNT) {
 			switch (i % 3) {
@@ -407,25 +354,37 @@ void lighting() {
 			}
 		}
 
-		std::ostringstream spotlightDif;
-		spotlightDif << spotlightBase.str() << "].diffuse";
-		shader.setVec3(spotlightDif.str(), currentColor);
+		shader.setVec3("spotLights[" + std::to_string(i) + "].diffuse", currentColor);
+		shader.setVec3("spotLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setVec3("spotLights[" + std::to_string(i) + "].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.setFloat("spotLights[" + std::to_string(i) + "].cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("spotLights[" + std::to_string(i) + "].outerCutOff", glm::cos(glm::radians(17.5f)));
+		shader.setFloat("spotLights[" + std::to_string(i) + "].constant", 1.0f);
+		shader.setFloat("spotLights[" + std::to_string(i) + "].linear", 0.022f);
+		shader.setFloat("spotLights[" + std::to_string(i) + "].quadratic", 0.0019f);
+	}
 
-		std::ostringstream spotlightSpec;
-		spotlightSpec << spotlightBase.str() << "].specular";
-		shader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+	// set lightning for left side to building
+	for (int i = 18; i < 51; i++) {
+		shader.setVec3("spotLights[" + std::to_string(i) + "].position", glm::vec3(i - 33, 8.33154964f, -7.4f));
+		shader.setVec3("spotLights[" + std::to_string(i) + "].direction", glm::vec3(0.0f, -1.0f, 0.25f));
 
-		std::ostringstream spotlightAmbient;
-		spotlightAmbient << spotlightBase.str();
-		shader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
+		if (changeColor == BUNT) {
+			switch (i % 3) {
+			case 0: currentColor = glm::vec3(0.5f, 0.0f, 0.0f); break;
+			case 1: currentColor = glm::vec3(0.0f, 0.5f, 0.0f); break;
+			case 2: currentColor = glm::vec3(0.0f, 0.0f, 0.5f); break;
+			}
+		}
 
-		std::ostringstream spotlightCutOff;
-		spotlightCutOff << spotlightBase.str() << "].cutOff";
-		shader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
-
-		std::ostringstream spotlightOuterCutOff;
-		spotlightOuterCutOff << spotlightBase.str() << "].outerCutOff";
-		shader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
+		shader.setVec3("spotLights[" + std::to_string(i) + "].diffuse", currentColor);
+		shader.setVec3("spotLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setVec3("spotLights[" + std::to_string(i) + "].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.setFloat("spotLights[" + std::to_string(i) + "].cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("spotLights[" + std::to_string(i) + "].outerCutOff", glm::cos(glm::radians(17.5f)));
+		shader.setFloat("spotLights[" + std::to_string(i) + "].constant", 1.0f);
+		shader.setFloat("spotLights[" + std::to_string(i) + "].linear", 0.022f);
+		shader.setFloat("spotLights[" + std::to_string(i) + "].quadratic", 0.0019f);
 	}
 }
 
@@ -533,9 +492,9 @@ int main(int argc, char** argv) {
 	shader.setInt("skybox", 0);
 	shader.setSkyBoxReflection(0.1f);
 
-	shader.setInt("dirlight", dirlight);
+	shader.setInt("dir_light", dirlight);
 	shader.setInt("skybox_bool", skybox);
-	shader.setInt("spotlight", spotlight);
+	shader.setInt("spot_light", spotlight);
 
 	shader.setVec3("light.direction", glm::vec3(0.0f, -50.0f, 0.0f));
 	shader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -545,7 +504,7 @@ int main(int argc, char** argv) {
 	shader.setVec3("material.ambient", glm::vec3(1.0f, 1.0f, 1.0f));
 	shader.setVec3("material.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
 	shader.setVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-	shader.setFloat("material.shininess", 1.0f);
+	shader.setFloat("material.shininess", 1000.0f);
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
@@ -595,18 +554,20 @@ int main(int argc, char** argv) {
 		Boden.Draw(shader);
 
 		// Skybox
-		glDepthFunc(GL_LEQUAL);
-		skyboxShader.use();
-		glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
-		skyboxShader.setMat4("view",view);
-		skyboxShader.setProjection("projection", projection_matrix);
+		if (skybox) {
+			glDepthFunc(GL_LEQUAL);
+			skyboxShader.use();
+			glm::mat4 view = glm::mat4(glm::mat3(camera.getViewMatrix()));
+			skyboxShader.setMat4("view", view);
+			skyboxShader.setProjection("projection", projection_matrix);
 
-		glBindVertexArray(skyboxVAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		glActiveTexture(GL_TEXTURE0);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		glDepthFunc(GL_LESS);
+			glBindVertexArray(skyboxVAO);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+			glActiveTexture(GL_TEXTURE0);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+			glDepthFunc(GL_LESS);
+		}
 
 
 		// tausche Puffer
