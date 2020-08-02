@@ -20,7 +20,6 @@ struct Light {
 struct SpotLight {
     vec3  position;
     vec3  direction;
-    vec3 color;
     float cutOff;
     float outerCutOff;
     vec3 ambient;
@@ -39,7 +38,6 @@ uniform Light light;
 uniform SpotLight spotLights[SPOTLIGHT_COUNT];
 uniform Material material;
 uniform vec3 cameraPos;
-uniform sampler2D ourTexture;
 uniform samplerCube skybox;
 
 // function prototypes
@@ -50,6 +48,10 @@ void main(){
     // properties
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(cameraPos - Position);
+
+    // Enviroment Mapping
+    vec3 I = normalize(Position - cameraPos);
+    vec3 R = reflect(I, norm);
     
     // == =====================================================
     // Our lighting is set up in 3 phases: directional, point lights and an optional flashlight
@@ -63,7 +65,7 @@ void main(){
     for(int i = 0; i < SPOTLIGHT_COUNT; i++) {
         result += CalcSpotLight(spotLights[i], norm, Position, viewDir);  
     }
-    FragColor = vec4(result, 1.0);
+    FragColor = (0.1 * vec4(texture(skybox, R).rgb, 1.0)) + (0.9 * vec4(result, 1.0));
 }
 
 // calculates the color when using a directional light.
@@ -105,7 +107,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
     
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(ourTexture, TexCoord));
+    vec3 ambient = light.ambient * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoord));
     ambient *=  intensity;
