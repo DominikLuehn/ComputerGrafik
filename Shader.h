@@ -102,6 +102,11 @@ class Shader {
 			glUniformMatrix4fv(glGetUniformLocation(ID_, name.c_str()), 1, GL_FALSE, glm::value_ptr(matrix));
 		}
 
+		void setSkyBoxReflection(float value) {
+			std::string name = "factor";
+			glUniform1f(glGetUniformLocation(ID_, name.c_str()), value);
+		}
+
 	private:
 
 		void checkCompileErrors(GLuint shader, std::string type)

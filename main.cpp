@@ -27,14 +27,19 @@ enum CHANGECOLOR {
 };
 glm::vec3 currentColor = glm::vec3(0.0f, 0.0f, 0.5f);
 CHANGECOLOR changeColor = BLUE;
+float skybox_reflectivity = 0.1f;
+
 // camera
-Camera camera(glm::vec3(0.0f, 8.33154964f, 9.46781199f));
+Camera camera(glm::vec3(0.0f, 10.0, 0.0));
 float lastX = ScreenWidth / 2.0f;
 float lastY = ScreenHeight / 2.0f;
 
 // Shader
-Shader ourShader;
+Shader shader;
 Shader skyboxShader;
+boolean dirlight = true;
+boolean skybox = true;
+boolean spotlight = true;
 
 SDL_Window* window;
 SDL_Event event;
@@ -43,7 +48,7 @@ glm::mat4 projection_matrix;
 glm::mat4 view_matrix;
 
 void eventHandler(bool* quit) {
-	const float cameraSpeed = 0.1f;
+	const float cameraSpeed = 0.2f;
 	while (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_QUIT) {
 			*quit = true;
@@ -55,52 +60,71 @@ void eventHandler(bool* quit) {
 		else if (event.type == SDL_MOUSEWHEEL) {
 			camera.ProcessMouseScroll(event.motion.x);
 		}
-		else {
+		else if(event.type == SDL_KEYDOWN){
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
 				*quit = true;
 				break;
+
+			case SDLK_F1:
+				dirlight = !dirlight;
+				shader.use();
+				shader.setInt("dirlight", dirlight);
+				std::cout << "DirLight: " << std::to_string(dirlight) << "\nSkybox: " << std::to_string(skybox) << "\nSpotlights: " << std::to_string(spotlight) << std::endl;
+				break;
+			case SDLK_F2:
+				skybox = !skybox;
+				shader.use();
+				shader.setInt("skybox_bool", skybox);
+				std::cout << "DirLight: " << std::to_string(dirlight) << "\nSkybox: " << std::to_string(skybox) << "\nSpotlights: " << std::to_string(spotlight) << std::endl;
+				break;
+			case SDLK_F3:
+				spotlight = !spotlight;
+				shader.use();
+				shader.setInt("spotlight", spotlight);
+				std::cout << "DirLight: " << std::to_string(dirlight) << "\nSkybox: " << std::to_string(skybox) << "\nSpotlights: " << std::to_string(spotlight) << std::endl;
+				break;
 			// Rotation
 			case SDLK_KP_8:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_4:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_5:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(1.0f, 0.0f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_6:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 0.0f, 1.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_7:
 				transform_matrix = glm::rotate(transform_matrix, -0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_KP_9:
 				transform_matrix = glm::rotate(transform_matrix, 0.1f, glm::vec3(0.0f, 1.0f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			// Translation
 			case SDLK_UP:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, 0.1f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_LEFT:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.1f, 0.0f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_DOWN:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(0.0f, -0.1f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			case SDLK_RIGHT:
 				transform_matrix = glm::translate(transform_matrix, glm::vec3(-0.1f, 0.0f, 0.0f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			// Beleuchtung
 			case SDLK_r:
@@ -120,7 +144,7 @@ void eventHandler(bool* quit) {
 				break;
 			case SDLK_f:
 				transform_matrix = glm::scale(transform_matrix, glm::vec3(0.914f, 0.914f, 0.914f));
-				ourShader.setMat4("transform", transform_matrix);
+				shader.setMat4("transform", transform_matrix);
 				break;
 			//Kamera (�ber Numpad-Pfeile steuerbar)
 			case SDLK_w:
@@ -134,6 +158,20 @@ void eventHandler(bool* quit) {
 				break;
 			case SDLK_d:
 				camera.ProcessKeyBoard(RIGHT);
+				break;
+			case SDLK_KP_MINUS:
+				if (skybox_reflectivity > 0.0f) {
+					skybox_reflectivity = skybox_reflectivity - 0.1f;
+					shader.use();
+					shader.setFloat("factor", skybox_reflectivity);
+				}
+				break;
+			case SDLK_KP_PLUS:
+				if (skybox_reflectivity < 1.0f) {
+					skybox_reflectivity = skybox_reflectivity + 0.1f;
+					shader.use();
+					shader.setFloat("factor", skybox_reflectivity);
+				}
 				break;
 			}
 		}
@@ -195,43 +233,6 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
-}
-
-unsigned int loadTexture(char const* path) {
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data) {
-		GLenum format;
-		if (nrComponents == 1) {
-			format = GL_RED;
-		}
-		else if (nrComponents == 3) {
-			format = GL_RGB;
-		}
-		else if (nrComponents == 4) {
-			format = GL_RGBA;
-		}
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else {
-		std::cout << "Texture konnte nicht geladen werden von: " << path << std::endl;
-		stbi_image_free(data);
-	}
 
 	return textureID;
 }
@@ -347,12 +348,12 @@ void lighting() {
 
 		std::ostringstream spotlightPos;
 		spotlightPos << spotlightBase.str() << "].position";
-		ourShader.setVec3(spotlightPos.str(), glm::vec3(i, 8.33154964f, 9.46781199f));
+		shader.setVec3(spotlightPos.str(), glm::vec3(i, 8.33154964f, 9.46781199f));
 
 
 		std::ostringstream spotlightDir;
 		spotlightDir << spotlightBase.str() << "].direction";
-		ourShader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, -0.25f));
+		shader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, -0.25f));
 
 		if (changeColor == BUNT) {
 			switch ((i + 15) % 3) {
@@ -364,24 +365,24 @@ void lighting() {
 
 		std::ostringstream spotlightDif;
 		spotlightDif << spotlightBase.str() << "].diffuse";
-		ourShader.setVec3(spotlightDif.str(), currentColor);
+		shader.setVec3(spotlightDif.str(), currentColor);
 
 		std::ostringstream spotlightSpec;
 		spotlightSpec << spotlightBase.str() << "].specular";
 		int count = 15 + i;
-		ourShader.setVec3("spotLights[" + std::to_string(count) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setVec3("spotLights[" + std::to_string(count) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		std::ostringstream spotlightAmbient;
 		spotlightAmbient << spotlightBase.str();
-		ourShader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
 
 		std::ostringstream spotlightCutOff;
 		spotlightCutOff << spotlightBase.str() << "].cutOff";
-		ourShader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
+		shader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
 
 		std::ostringstream spotlightOuterCutOff;
 		spotlightOuterCutOff << spotlightBase.str() << "].outerCutOff";
-		ourShader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
+		shader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
 	}
 
 	// set lightning for left side to building
@@ -391,12 +392,12 @@ void lighting() {
 
 		std::ostringstream spotlightPos;
 		spotlightPos << spotlightBase.str() << "].position";
-		ourShader.setVec3(spotlightPos.str(), glm::vec3(i - 33, 8.33154964f, -7.4f));
+		shader.setVec3(spotlightPos.str(), glm::vec3(i - 33, 8.33154964f, -7.4f));
 
 
 		std::ostringstream spotlightDir;
 		spotlightDir << spotlightBase.str() << "].direction";
-		ourShader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, 0.25f));
+		shader.setVec3(spotlightDir.str(), glm::vec3(0.0f, -1.0f, 0.25f));
 
 		if (changeColor == BUNT) {
 			switch (i % 3) {
@@ -408,23 +409,23 @@ void lighting() {
 
 		std::ostringstream spotlightDif;
 		spotlightDif << spotlightBase.str() << "].diffuse";
-		ourShader.setVec3(spotlightDif.str(), currentColor);
+		shader.setVec3(spotlightDif.str(), currentColor);
 
 		std::ostringstream spotlightSpec;
 		spotlightSpec << spotlightBase.str() << "].specular";
-		ourShader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setVec3("spotLights[0].specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
 		std::ostringstream spotlightAmbient;
 		spotlightAmbient << spotlightBase.str();
-		ourShader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.setVec3(spotlightSpec.str(), glm::vec3(0.0f, 0.0f, 0.0f));
 
 		std::ostringstream spotlightCutOff;
 		spotlightCutOff << spotlightBase.str() << "].cutOff";
-		ourShader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
+		shader.setFloat(spotlightCutOff.str(), glm::cos(glm::radians(12.5f)));
 
 		std::ostringstream spotlightOuterCutOff;
 		spotlightOuterCutOff << spotlightBase.str() << "].outerCutOff";
-		ourShader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
+		shader.setFloat(spotlightOuterCutOff.str(), glm::cos(glm::radians(17.5f)));
 	}
 }
 
@@ -500,7 +501,7 @@ int main(int argc, char** argv) {
 		 50.0f, -50.0f,  50.0f
 	};
 
-	ourShader = Shader("Vertex.txt", "Fragment.fs");
+	shader = Shader("Vertex.txt", "Fragment.fs");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
 
 	// Transformationsmatrix, als Einheitsmatrix initialisiert
@@ -527,17 +528,32 @@ int main(int argc, char** argv) {
 		"resources/skybox/back.jpg"
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
-	
-	ourShader.use();
-	ourShader.setInt("skybox", 0);
+
+	shader.use();
+	shader.setInt("skybox", 0);
+	shader.setSkyBoxReflection(0.1f);
+
+	shader.setInt("dirlight", dirlight);
+	shader.setInt("skybox_bool", skybox);
+	shader.setInt("spotlight", spotlight);
+
+	shader.setVec3("light.direction", glm::vec3(0.0f, -50.0f, 0.0f));
+	shader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+	shader.setVec3("light.diffuse", glm::vec3(0.3f, 0.3f, 0.3f));
+	shader.setVec3("light.specular", glm::vec3(0.4f, 0.4f, 0.4f));
+
+	shader.setVec3("material.ambient", glm::vec3(1.0f, 1.0f, 1.0f));
+	shader.setVec3("material.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
+	shader.setVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+	shader.setFloat("material.shininess", 1.0f);
 
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
 	// Render Loop
 	bool quit = false;
 
-	Model ourModel("resources/objects/Haus/Haus.obj");
-	Model boden("resources/objects/Cube/cube.obj");
+	Model Haus("resources/objects/Haus/Haus.obj");
+	Model Boden("resources/objects/Cube/cube.obj");
 
 	// Instancing
 	/*glm::mat4 translations[25];
@@ -555,17 +571,6 @@ int main(int argc, char** argv) {
 		}
 	}*/
 
-	ourShader.use();
-	ourShader.setVec3("light.position", glm::vec3(0.0f, 50.0f, 0.0f));
-	ourShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
-	ourShader.setVec3("light.diffuse", glm::vec3(0.3f, 0.3f, 0.3f));
-	ourShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-
-	ourShader.setVec3("material.ambient", glm::vec3(1.0f, 1.0f, 1.0f));
-	ourShader.setVec3("material.diffuse", glm::vec3(1.0f, 1.0f, 1.0f));
-	ourShader.setVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-	ourShader.setFloat("material.shininess", 1.0f);
-
 	while (!quit) {
 
 		// Events
@@ -577,21 +582,17 @@ int main(int argc, char** argv) {
 		glDepthFunc(GL_LESS);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		updateShader(ourShader);
+		updateShader(shader);
 
 		lighting();
 
-		glActiveTexture(GL_TEXTURE11);
+		glActiveTexture(GL_TEXTURE31);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-		ourShader.setInt("skybox", 11);
+		shader.setInt("skybox", 31);
 
 		// Rendering
-		//for (unsigned int i = 0; i < 25; i++)
-		//{
-			//ourshader.setmat4("transform", translations[i]);
-			ourModel.Draw(ourShader);
-			boden.Draw(ourShader);
-		//}
+		Haus.Draw(shader);
+		Boden.Draw(shader);
 
 		// Skybox
 		glDepthFunc(GL_LEQUAL);
@@ -614,7 +615,7 @@ int main(int argc, char** argv) {
 
 	glDeleteVertexArrays(1, &skyboxVAO);
 	glDeleteBuffers(1, &skyboxVBO);
-	ourShader.erase();
+	shader.erase();
 	skyboxShader.erase();
 
 	SDL_GL_DeleteContext(glcontext);

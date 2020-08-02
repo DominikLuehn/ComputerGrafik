@@ -10,7 +10,7 @@ struct Material {
 };
 
 struct Light {
-    vec3 position;
+    vec3 direction;
 
     vec3 ambient;
     vec3 diffuse;
@@ -27,13 +27,19 @@ struct SpotLight {
     vec3 diffuse;
 };  
 
-layout(location = 0)out vec4 FragColor;
+out vec4 FragColor;
+
 #define SPOTLIGHT_COUNT 66
 
 in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
 
+uniform bool dirlight;
+uniform bool spotlight;
+uniform bool skybox_bool;
+
+uniform float factor;
 uniform Light light;
 uniform SpotLight spotLights[SPOTLIGHT_COUNT];
 uniform Material material;
@@ -60,18 +66,29 @@ void main(){
     // this fragment's final color.
     // == =====================================================
     // phase 1: directional lighting
-    vec3 result = CalcDirLight(light, norm, viewDir);
-   
-    for(int i = 0; i < SPOTLIGHT_COUNT; i++) {
-        result += CalcSpotLight(spotLights[i], norm, Position, viewDir);  
+    vec3 result = vec3(0.0);
+    if(dirlight){
+        result = CalcDirLight(light, norm, viewDir);
     }
-    FragColor = (0.1 * vec4(texture(skybox, R).rgb, 1.0)) + (0.9 * vec4(result, 1.0));
+
+    // phase 2: point lights
+    if(spotlight){
+        for(int i = 0; i < SPOTLIGHT_COUNT; i++) {
+            result += CalcSpotLight(spotLights[i], norm, Position, viewDir);  
+        }
+    }
+    
+    if(skybox_bool){
+        FragColor = (factor * vec4(texture(skybox, R).rgb, 1.0)) + ((1.0 - factor) * vec4(result, 1.0));
+    } else {
+        FragColor = vec4(result, 1.0);
+    }
 }
 
 // calculates the color when using a directional light.
 vec3 CalcDirLight(Light light, vec3 normal, vec3 viewDir)
 {
-    vec3 lightDir = normalize(light.position - Position);
+    vec3 lightDir = normalize(-light.direction);
    
    // diffuse shading
     float diff = max(dot(normal, lightDir), 0.0);
