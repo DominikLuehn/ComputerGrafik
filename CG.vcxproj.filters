@@ -40,9 +40,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Vertex.txt">
-      <Filter>Ressourcendateien</Filter>
-    </Text>
     <Text Include="skybox_fragment.txt">
       <Filter>Ressourcendateien</Filter>
     </Text>
@@ -52,5 +49,16 @@
     <Text Include="Fragment.fs">
       <Filter>Ressourcendateien</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Vertex.fs">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="Fragment_Depth.fs">
+      <Filter>Ressourcendateien</Filter>
+    </None>
+    <None Include="Vertex_Depth.fs">
+      <Filter>Ressourcendateien</Filter>
+    </None>
   </ItemGroup>
 </Project>

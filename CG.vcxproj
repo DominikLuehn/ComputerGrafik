@@ -162,7 +162,11 @@
     <Text Include="Fragment.fs" />
     <Text Include="skybox_fragment.txt" />
     <Text Include="skybox_vertex.txt" />
-    <Text Include="Vertex.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Fragment_Depth.fs" />
+    <None Include="Vertex.fs" />
+    <None Include="Vertex_Depth.fs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

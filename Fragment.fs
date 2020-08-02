@@ -36,6 +36,7 @@ out vec4 FragColor;
 
 #define SPOTLIGHT_COUNT 66
 
+in vec4 PosLightSpace;
 in vec3 Position;
 in vec3 Normal;
 in vec2 TexCoord;
@@ -43,13 +44,15 @@ in vec2 TexCoord;
 uniform bool dir_light;
 uniform bool spot_light;
 uniform bool skybox_bool;
+uniform bool shadow;
 
+uniform sampler2D shadowMap;
+uniform samplerCube skybox;
 uniform float factor;
+uniform vec3 cameraPos;
 uniform DirLight light;
 uniform SpotLight spotLights[SPOTLIGHT_COUNT];
 uniform Material material;
-uniform vec3 cameraPos;
-uniform samplerCube skybox;
 
 // function prototypes
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -72,7 +75,7 @@ void main(){
             result += CalcSpotLight(spotLights[i], norm, viewDir);  
         }
     }
-    
+
     // Enviroment Mapping - Skybox
     vec3 I = normalize(Position - cameraPos);
     vec3 R = reflect(I, norm);
@@ -83,6 +86,39 @@ void main(){
     } else {
         FragColor = vec4(result, 1.0);
     }
+}
+
+// calculates shadows for directional light
+float ShadowCalculation(DirLight light, vec3 norm){
+    // perform perspective divide
+    vec3 projCoords = PosLightSpace.xyz / PosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from lights perspective
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+    // get depth of current fragment from lights perspective
+    float currentDepth = projCoords.z;
+    // calculate bias
+    vec3 lightDir = normalize(light.direction - Position);
+    float bias = max(0.05 * (1.0 - dot(norm, lightDir)), 0.005);
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+        
+    return shadow;
 }
 
 // calculates the color when using a directional light.
@@ -102,7 +138,12 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.texture_diffuse1, TexCoord));
     vec3 specular = light.specular * spec * vec3(texture(material.texture_specular1, TexCoord));
     
-    return (ambient + diffuse + specular);
+    // shadow
+    float shadow = ShadowCalculation(light, normal);
+
+    // result
+    return (ambient + (1.0 - shadow) * (diffuse + specular));
+    //return (ambient + diffuse + specular);
 }
 
 
