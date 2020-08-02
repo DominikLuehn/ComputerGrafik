@@ -120,7 +120,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 viewDir)
     
     // attenuation
     float distance = length(light.position - Position);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    float attenuation = 1.0 / (1.0 + 0.022 * distance + 0.0019 * (distance * distance));
 
     // spotlight intensity
     float theta = dot(lightDir, normalize(-light.direction)); 

@@ -161,14 +161,14 @@ void eventHandler(bool* quit) {
 				break;
 			case SDLK_KP_MINUS:
 				if (skybox_reflectivity > 0.0f) {
-					skybox_reflectivity = skybox_reflectivity - 0.1f;
+					skybox_reflectivity = skybox_reflectivity - 0.05f;
 					shader.use();
 					shader.setFloat("factor", skybox_reflectivity);
 				}
 				break;
 			case SDLK_KP_PLUS:
 				if (skybox_reflectivity < 1.0f) {
-					skybox_reflectivity = skybox_reflectivity + 0.1f;
+					skybox_reflectivity = skybox_reflectivity + 0.05f;
 					shader.use();
 					shader.setFloat("factor", skybox_reflectivity);
 				}
@@ -343,8 +343,9 @@ void lighting() {
 
 	// set lightning for right side of buildung
 	for (int i = -15; i < 18; i++) {
-		shader.setVec3("spotLights[" + std::to_string(i) + "].position", glm::vec3(i - 33, 8.33154964f, -7.4f));
-		shader.setVec3("spotLights[" + std::to_string(i) + "].direction", glm::vec3(0.0f, -1.0f, 0.25f));
+		int id = 15 + i;
+		shader.setVec3("spotLights[" + std::to_string(id) + "].position", glm::vec3(i, 8.33154964f, 9.46781199f));
+		shader.setVec3("spotLights[" + std::to_string(id) + "].direction", glm::vec3(0.0f, -1.0f, -0.25f));
 
 		if (changeColor == BUNT) {
 			switch (i % 3) {
@@ -354,20 +355,21 @@ void lighting() {
 			}
 		}
 
-		shader.setVec3("spotLights[" + std::to_string(i) + "].diffuse", currentColor);
-		shader.setVec3("spotLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		shader.setVec3("spotLights[" + std::to_string(i) + "].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-		shader.setFloat("spotLights[" + std::to_string(i) + "].cutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("spotLights[" + std::to_string(i) + "].outerCutOff", glm::cos(glm::radians(17.5f)));
-		shader.setFloat("spotLights[" + std::to_string(i) + "].constant", 1.0f);
-		shader.setFloat("spotLights[" + std::to_string(i) + "].linear", 0.022f);
-		shader.setFloat("spotLights[" + std::to_string(i) + "].quadratic", 0.0019f);
+		shader.setVec3("spotLights[" + std::to_string(id) + "].diffuse", currentColor);
+		shader.setVec3("spotLights[" + std::to_string(id) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setVec3("spotLights[" + std::to_string(id) + "].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.setFloat("spotLights[" + std::to_string(id) + "].cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("spotLights[" + std::to_string(id) + "].outerCutOff", glm::cos(glm::radians(17.5f)));
+		shader.setFloat("spotLights[" + std::to_string(id) + "].constant", 1.0f);
+		shader.setFloat("spotLights[" + std::to_string(id) + "].linear", 0.022f);
+		shader.setFloat("spotLights[" + std::to_string(id) + "].quadratic", 0.0019f);
 	}
 
 	// set lightning for left side to building
 	for (int i = 18; i < 51; i++) {
-		shader.setVec3("spotLights[" + std::to_string(i) + "].position", glm::vec3(i - 33, 8.33154964f, -7.4f));
-		shader.setVec3("spotLights[" + std::to_string(i) + "].direction", glm::vec3(0.0f, -1.0f, 0.25f));
+		int id = i + 15;
+		shader.setVec3("spotLights[" + std::to_string(id) + "].position", glm::vec3(i - 33, 8.33154964f, -7.4f));
+		shader.setVec3("spotLights[" + std::to_string(id) + "].direction", glm::vec3(0.0f, -1.0f, 0.25f));
 
 		if (changeColor == BUNT) {
 			switch (i % 3) {
@@ -377,14 +379,14 @@ void lighting() {
 			}
 		}
 
-		shader.setVec3("spotLights[" + std::to_string(i) + "].diffuse", currentColor);
-		shader.setVec3("spotLights[" + std::to_string(i) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
-		shader.setVec3("spotLights[" + std::to_string(i) + "].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
-		shader.setFloat("spotLights[" + std::to_string(i) + "].cutOff", glm::cos(glm::radians(12.5f)));
-		shader.setFloat("spotLights[" + std::to_string(i) + "].outerCutOff", glm::cos(glm::radians(17.5f)));
-		shader.setFloat("spotLights[" + std::to_string(i) + "].constant", 1.0f);
-		shader.setFloat("spotLights[" + std::to_string(i) + "].linear", 0.022f);
-		shader.setFloat("spotLights[" + std::to_string(i) + "].quadratic", 0.0019f);
+		shader.setVec3("spotLights[" + std::to_string(id) + "].diffuse", currentColor);
+		shader.setVec3("spotLights[" + std::to_string(id) + "].specular", glm::vec3(1.0f, 1.0f, 1.0f));
+		shader.setVec3("spotLights[" + std::to_string(id) + "].ambient", glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.setFloat("spotLights[" + std::to_string(id) + "].cutOff", glm::cos(glm::radians(12.5f)));
+		shader.setFloat("spotLights[" + std::to_string(id) + "].outerCutOff", glm::cos(glm::radians(17.5f)));
+		shader.setFloat("spotLights[" + std::to_string(id) + "].constant", 1.0f);
+		shader.setFloat("spotLights[" + std::to_string(id) + "].linear", 0.022f);
+		shader.setFloat("spotLights[" + std::to_string(id) + "].quadratic", 0.0019f);
 	}
 }
 
@@ -530,6 +532,8 @@ int main(int argc, char** argv) {
 		}
 	}*/
 
+	glEnable(GL_CULL_FACE);
+
 	while (!quit) {
 
 		// Events
@@ -568,7 +572,6 @@ int main(int argc, char** argv) {
 			glBindVertexArray(0);
 			glDepthFunc(GL_LESS);
 		}
-
 
 		// tausche Puffer
 		SDL_GL_SwapWindow(window);
