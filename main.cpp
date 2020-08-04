@@ -37,6 +37,9 @@ float lastY = ScreenHeight / 2.0f;
 // Shader
 Shader shader;
 Shader skyboxShader;
+Shader simpleDepthShader;
+Shader debugDepthQuad;
+
 boolean dirlight = true;
 boolean skybox = true;
 boolean spotlight = true;
@@ -411,15 +414,34 @@ int main(int argc, char** argv) {
 		 50.0f, -50.0f,  50.0f
 	};
 
-	shader = Shader("Vertex.txt", "Fragment.fs");
+	shader = Shader("Vertex.fs", "Fragment.fs");
 	skyboxShader = Shader("skybox_vertex.txt", "skybox_fragment.txt");
+	simpleDepthShader = Shader("Vertex_Depth.fs", "Fragment_Depth.fs");
 
-	// Transformationsmatrix, als Einheitsmatrix initialisiert
-	transform_matrix = glm::mat4(1.0f);
-	view_matrix = glm::mat4(1.0f);
-	projection_matrix = glm::mat4(1.0f);
+	// Schatten
+	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
 
-	// Skybox
+	// depth texture
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// skybox
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
 	glGenBuffers(1, &skyboxVBO);
@@ -438,6 +460,12 @@ int main(int argc, char** argv) {
 		"resources/skybox/back.jpg"
 	};
 	unsigned int cubemapTexture = loadCubemap(faces);
+
+	// Transformationsmatrix, als Einheitsmatrix initialisiert
+	transform_matrix = glm::mat4(1.0f);
+	view_matrix = glm::mat4(1.0f);
+	projection_matrix = glm::mat4(1.0f);
+
 
 	shader.use();
 	shader.setInt("skybox", 0);
@@ -463,6 +491,7 @@ int main(int argc, char** argv) {
 	bool quit = false;
 
 	Model Haus("resources/objects/Haus/Haus.obj");
+	Model Boden("resources/objects/Cube/cube.obj");
 
 	// Instancing
 	/*glm::mat4 translations[25];
@@ -492,16 +521,48 @@ int main(int argc, char** argv) {
 		glDepthFunc(GL_LESS);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		updateShader(shader);
+		//---------------------------------------------------------------------
 
+		// 1. render depth of the scene to depth map
+		/*glm::mat4 lightProjection, lightView;
+		glm::mat4 lightSpaceMatrix;
+		float near_plane = 1.0f, far_plane = 7.5f;
+
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		lightView = glm::lookAt(glm::vec3(0.0f, 50.0f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+		lightSpaceMatrix = lightProjection * lightView;
+
+		// render scene from light's point of view
+		simpleDepthShader.use();
+		simpleDepthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		ConfigureShaderAndMatrices();
+		Haus.Draw(simpleDepthShader);
+		Boden.Draw(simpleDepthShader);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// reset viewport
+		glViewport(0, 0, ScreenWidth, ScreenHeight);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
+
+		// 2. render scene as normal
 		lighting();
+
+		updateShader(shader);
 
 		glActiveTexture(GL_TEXTURE31);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 		shader.setInt("skybox", 31);
 
-		// Rendering
-		//Haus.Draw(shader);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindTexture(GL_TEXTURE_2D, depthMap);
+		Haus.Draw(shader);
+		Boden.Draw(shader);
+
+		//---------------------------------------------------------------------
 
 		// Skybox
 		if (skybox) {
