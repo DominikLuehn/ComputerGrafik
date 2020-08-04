@@ -66,14 +66,14 @@ void main(){
         result = CalcDirLight(light, norm, viewDir);
     }
 
-    // point lights
+    // spotlights
     if(spot_light){
         for(int i = 0; i < SPOTLIGHT_COUNT; i++) {
             result += CalcSpotLight(spotLights[i], norm, viewDir);  
         }
     }
     
-    // Enviroment Mapping - Skybox
+    // Enviroment Mapping/Skybox
     vec3 I = normalize(Position - cameraPos);
     vec3 R = reflect(I, norm);
 

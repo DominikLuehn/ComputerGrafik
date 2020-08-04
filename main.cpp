@@ -178,38 +178,6 @@ void eventHandler(bool* quit) {
 	}
 }
 
-void calcNormals(float vertices[], int size, int floats_per_triangle, int floats_per_vertex) {
-	std::vector<glm::vec3> normals;
-	glm::vec3 point_a;
-	glm::vec3 point_b;
-	glm::vec3 point_c;
-	glm::vec3 vec1;
-	glm::vec3 vec2;
-	glm::vec3 normal;
-
-	for (int i = 0; i < size; i++) {
-		point_a = glm::vec3(vertices[0 + i * floats_per_triangle], vertices[1 + i * floats_per_triangle], vertices[2 + i * floats_per_triangle]);
-		point_b = glm::vec3(vertices[0 + i * floats_per_triangle + floats_per_vertex], vertices[1 + i * floats_per_triangle + floats_per_vertex], vertices[2 + i * floats_per_triangle + floats_per_vertex]);
-		point_c = glm::vec3(vertices[0 + i * floats_per_triangle + 2 * floats_per_vertex], vertices[1 + i * floats_per_triangle + 2 * floats_per_vertex], vertices[2 + i * floats_per_triangle + 2 * floats_per_vertex]);
-
-		vec1 = point_b - point_a;
-		vec2 = point_c - point_a;
-
-		normal = glm::normalize(glm::cross(vec1, vec2));
-		normals.push_back(normal);
-	}
-
-	// Wert der Normalen setzen
-	int offset = 6;
-	for (int i = 0; i < normals.size(); i++) { // f�r jedes Dreieck
-		for (int c = 0; c < 3; c++) { // jede Normale pro Dreieck f�r jeden Vertex
-			vertices[c * floats_per_vertex + i * floats_per_triangle + offset] = normals.at(i).x;
-			vertices[c * floats_per_vertex + i * floats_per_triangle + offset + 1] = normals.at(i).y;
-			vertices[c * floats_per_vertex + i * floats_per_triangle + offset + 2] = normals.at(i).z;
-		}
-	}
-}
-
 unsigned int loadCubemap(std::vector<std::string> faces) {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
@@ -235,25 +203,6 @@ unsigned int loadCubemap(std::vector<std::string> faces) {
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 	return textureID;
-}
-
-void fps()
-{
-	static int fps = 0;
-	static float before = 0.0f;
-	static char strFPS[20] = { 0 };
-	static float now = (GetTickCount() * 0.001f);
-
-	++fps;
-
-	if ((now - before) > 1.0f)
-	{
-		before = now;
-		sprintf_s(strFPS, "FPS: %c", int(fps));
-		SDL_SetWindowTitle(window, strFPS);
-		fps = 0;
-		
-	}
 }
 
 void lighting() {
@@ -514,7 +463,6 @@ int main(int argc, char** argv) {
 	bool quit = false;
 
 	Model Haus("resources/objects/Haus/Haus.obj");
-	Model Boden("resources/objects/Cube/cube.obj");
 
 	// Instancing
 	/*glm::mat4 translations[25];
@@ -538,7 +486,6 @@ int main(int argc, char** argv) {
 
 		// Events
 		eventHandler(&quit);
-		fps();
 		// leere Fenster
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -554,8 +501,7 @@ int main(int argc, char** argv) {
 		shader.setInt("skybox", 31);
 
 		// Rendering
-		Haus.Draw(shader);
-		Boden.Draw(shader);
+		//Haus.Draw(shader);
 
 		// Skybox
 		if (skybox) {

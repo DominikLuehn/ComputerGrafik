@@ -3,8 +3,11 @@ illum 4
 Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
-map_Kd metal.jpg
+map_Kd aluminium_brushed.jpg
 Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks specular_metal.png
+Ns 18.00
 newmtl lambert3SG
 illum 4
 Kd 0.00 0.00 0.00
@@ -18,33 +21,6 @@ Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd beton.jpg
-Ni 1.00
-newmtl lambert8SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 1.00 1.00 1.00
-Tf 1.00 1.00 1.00
-map_Kd dach.jpg
-Ni 1.00
-newmtl lambert9SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-Ni 1.00
-newmtl lambert15SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-map_Kd metal.jpg
-Ni 1.00
-newmtl lambert16SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-map_Kd metal.jpg
 Ni 1.00
 newmtl lambert17SG
 illum 4
@@ -65,5 +41,54 @@ illum 4
 Kd 0.00 0.00 0.00
 Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
-map_Kd wooden_floor.png
+map_Kd pflaster.jpg
 Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks specular_metal.png
+Ns 18.00
+newmtl standardSurface4SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd aluminium_brushed.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks specular_metal.png
+Ns 18.00
+newmtl standardSurface5SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd aluminium_brushed.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks specular_metal.png
+Ns 18.00
+newmtl standardSurface6SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 0.00
+newmtl standardSurface11SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd beton.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks specular_metal.png
+Ns 18.00
+newmtl standardSurface12SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd aluminium_brushed.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+map_Ks specular_metal.png
+Ns 18.00
